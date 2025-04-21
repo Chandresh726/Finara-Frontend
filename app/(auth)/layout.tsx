@@ -20,7 +20,7 @@ export default function AuthLayout({
         </div>
 
         <div className="relative h-full flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/10 rounded-xl" />
+          <div className="absolute inset-0" />
           <div className="relative z-10 text-white max-w-md">
             <h1 className="text-3xl font-bold mb-4">Transform Your Financial Future</h1>
             <p className="text-white/80">
