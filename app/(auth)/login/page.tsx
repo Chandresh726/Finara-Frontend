@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
@@ -13,14 +13,18 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { loginSchema, type LoginFormValues } from "@/lib/validations"
+import { login } from "@/lib/services/auth"
+import { AuthError } from "@/lib/services/auth"
+import { useToast } from "@/components/ui/use-toast"
 
 export default function LoginPage() {
-  const [isSuccess, setIsSuccess] = useState(false)
-  const [isPending, startTransition] = useTransition()
   const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
+  const { toast } = useToast()
 
   const {
-    register,
+    register: registerForm,
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormValues>({
@@ -28,18 +32,47 @@ export default function LoginPage() {
   })
 
   const onSubmit = async (data: LoginFormValues) => {
-    startTransition(async () => {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500))
+    setIsLoading(true)
 
-      console.log(data)
-      setIsSuccess(true)
+    try {
+      const response = await login({
+        email: data.email,
+        password: data.password,
+      })
 
-      // Redirect to dashboard after 2 seconds
-      setTimeout(() => {
+      if (response.data?.onboard) {
+        router.push("/onboard")
+      } else {
         router.push("/dashboard")
-      }, 2000)
-    })
+      }
+    } catch (error) {
+      if (error instanceof AuthError) {
+        // Parse the error message to get the details.message if available
+        try {
+          const errorData = JSON.parse(error.message)
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: errorData.details?.message || errorData.message || "Login failed",
+          })
+        } catch {
+          // If parsing fails, use the original error message
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: error.message,
+          })
+        }
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "An unexpected error occurred. Please try again.",
+        })
+      }
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   if (isSuccess) {
@@ -86,7 +119,7 @@ export default function LoginPage() {
                     type="email"
                     placeholder="name@example.com"
                     className={`pl-10 ${errors.email ? "border-destructive" : ""}`}
-                    {...register("email")}
+                    {...registerForm("email")}
                   />
                 </div>
                 {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
@@ -106,7 +139,7 @@ export default function LoginPage() {
                     id="password"
                     type="password"
                     className={`pl-10 ${errors.password ? "border-destructive" : ""}`}
-                    {...register("password")}
+                    {...registerForm("password")}
                   />
                 </div>
                 {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
@@ -116,9 +149,9 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 className="w-full bg-gradient-primary hover:opacity-90 transition-opacity"
-                disabled={isPending}
+                disabled={isLoading}
               >
-                {isPending ? (
+                {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Signing in...

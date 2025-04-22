@@ -3,9 +3,8 @@
 import { useState } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { Bell, BarChart3, Menu, Search, User } from "lucide-react"
+import { BarChart3, Menu, Plus, User, Bot } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import {
   DropdownMenu,
@@ -15,68 +14,65 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useAuth } from "@/lib/contexts/auth-context"
+import { cn } from "@/lib/utils"
 
-export function DashboardHeader() {
+interface DashboardHeaderProps {
+  isSidebarCollapsed: boolean
+  onToggleSidebar: () => void
+}
+
+export function DashboardHeader({ isSidebarCollapsed, onToggleSidebar }: DashboardHeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const { logout } = useAuth()
 
   return (
     <header className="sticky top-0 z-30 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-16 items-center px-4">
-        <div className="flex items-center gap-2 md:hidden">
-          <Button variant="outline" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-            <Menu className="h-5 w-5" />
-            <span className="sr-only">Toggle menu</span>
-          </Button>
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <BarChart3 className="h-6 w-6 text-finance-500 dark:text-finance-400" />
-            <span className="font-bold text-xl">Finara</span>
-          </Link>
-        </div>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Link href="/dashboard" className="flex items-center gap-2">
+              <BarChart3 className="h-6 w-6 text-finance-500 dark:text-finance-400" />
+              <span className="font-bold text-xl">Finara</span>
+            </Link>
+          </div>
 
-        <div className="hidden md:flex md:items-center md:gap-2">
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <BarChart3 className="h-6 w-6 text-finance-500 dark:text-finance-400" />
-            <span className="font-bold text-xl">Finara</span>
-          </Link>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggleSidebar}
+            className="hidden md:flex"
+          >
+            <Bot className={cn(
+              "h-5 w-5",
+              isSidebarCollapsed ? "text-muted-foreground" : "text-green-500"
+            )} />
+            <span className="sr-only">Toggle AI chat</span>
+          </Button>
+
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-[180px] justify-between">
+                  <span>Main Portfolio</span>
+                  <span className="opacity-50">▼</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem>Main Portfolio</DropdownMenuItem>
+                <DropdownMenuItem>Growth Portfolio</DropdownMenuItem>
+                <DropdownMenuItem>Retirement Portfolio</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Create New Portfolio
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
 
         <div className="flex flex-1 items-center justify-end space-x-4">
-          <div className="relative hidden md:flex w-full max-w-sm items-center">
-            <Search className="absolute left-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search..."
-              className="w-full bg-background pl-8 md:w-[300px] lg:w-[400px]"
-            />
-          </div>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon" className="relative">
-                <Bell className="h-5 w-5" />
-                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-finance-500 text-[10px] font-medium text-white">
-                  3
-                </span>
-                <span className="sr-only">Notifications</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[300px]">
-              <DropdownMenuLabel>Notifications</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <div className="max-h-[300px] overflow-auto">
-                {[1, 2, 3].map((i) => (
-                  <DropdownMenuItem key={i} className="cursor-pointer py-3">
-                    <div>
-                      <p className="font-medium">Portfolio Update</p>
-                      <p className="text-sm text-muted-foreground">Your portfolio has increased by 2.3% today.</p>
-                      <p className="text-xs text-muted-foreground mt-1">2 hours ago</p>
-                    </div>
-                  </DropdownMenuItem>
-                ))}
-              </div>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
           <ThemeToggle />
 
           <DropdownMenu>
@@ -94,29 +90,20 @@ export function DashboardHeader() {
               <DropdownMenuItem>Billing</DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
-                <Link href="/" className="flex w-full">
+                <button 
+                  onClick={(e) => {
+                    e.preventDefault()
+                    logout()
+                  }} 
+                  className="flex w-full"
+                >
                   Logout
-                </Link>
+                </button>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
-
-      {/* Mobile menu */}
-      {isMobileMenuOpen && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          exit={{ opacity: 0, height: 0 }}
-          className="md:hidden border-b"
-        >
-          <div className="flex items-center p-4">
-            <Search className="h-4 w-4 mr-2 text-muted-foreground" />
-            <Input type="search" placeholder="Search..." className="flex-1" />
-          </div>
-        </motion.div>
-      )}
     </header>
   )
 }
