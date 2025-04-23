@@ -1,4 +1,5 @@
 import * as z from "zod"
+import { RiskProfile, InvestmentType, Region } from "@/lib/constants/enums"
 
 export const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -23,31 +24,6 @@ export const signupSchema = z
 
 export type LoginFormValues = z.infer<typeof loginSchema>
 export type SignupFormValues = z.infer<typeof signupSchema>
-
-export enum RiskProfile {
-  Conservative = "Conservative",
-  Moderate = "Moderate",
-  Aggressive = "Aggressive",
-}
-
-export enum InvestmentType {
-  Equity = "Equity",
-  Bonds = "Bonds",
-  RealEstate = "Real Estate",
-  Cryptocurrency = "Cryptocurrency",
-  Gold = "Gold",
-  ETF = "ETF",
-  Commodities = "Commodities",
-}
-
-export enum Region {
-  US = "US",
-  India = "India",
-  Global = "Global",
-  Europe = "Europe",
-  Asia = "Asia",
-  LatinAmerica = "Latin America",
-}
 
 export const onboardingSchema = z.object({
   firstName: z.string().min(2, "First name must be at least 2 characters"),

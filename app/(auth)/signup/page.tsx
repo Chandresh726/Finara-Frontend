@@ -13,9 +13,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { signupSchema, type SignupFormValues } from "@/lib/validations"
 import { register } from "@/lib/services/auth"
-import { AuthError } from "@/lib/services/auth"
 import { useToast } from "@/components/ui/use-toast"
-import { SignUpRequest } from "@/types/auth"
+import { AuthError, AuthRequest } from "@/lib/types/auth"
 
 export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false)
@@ -38,7 +37,7 @@ export default function SignupPage() {
     setEmail(data.email)
 
     try {
-      const credentials: SignUpRequest = {
+      const credentials: AuthRequest = {
         email: data.email,
         password: data.password,
       }
@@ -50,12 +49,18 @@ export default function SignupPage() {
           title: "Registration successful",
           description: "Please check your email to verify your account",
         })
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Registration Failed",
+          description: response.details?.message || "Failed to create account",
+        })
       }
     } catch (error) {
       if (error instanceof AuthError) {
         toast({
           variant: "destructive",
-          title: "Error",
+          title: "Registration Failed",
           description: error.message,
         })
       } else {

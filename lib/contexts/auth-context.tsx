@@ -1,15 +1,11 @@
 "use client"
 
 import { createContext, useContext, useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { getAuthToken, isAuthenticated, logout as authLogout } from "@/lib/services/auth"
 import { useToast } from "@/components/ui/use-toast"
-
-interface AuthContextType {
-  isAuthenticated: boolean
-  isLoading: boolean
-  logout: () => Promise<void>
-}
+import { AuthContextType, AuthError } from "@/lib/types/auth"
+import { PROTECTED_ROUTES, ROUTES } from "@/lib/constants/routes"
 
 const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
@@ -21,6 +17,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
+  const pathname = usePathname()
   const { toast } = useToast()
 
   useEffect(() => {
@@ -29,33 +26,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setIsAuthenticated(!!token)
       setIsLoading(false)
       
-      // Redirect to login if not authenticated
-      if (!token) {
-        router.push("/login")
+      if (!token && PROTECTED_ROUTES.some(route => pathname?.startsWith(route))) {
+        router.push(ROUTES.LOGIN)
       }
     }
 
     checkAuth()
-  }, [router])
+  }, [router, pathname])
 
   const handleLogout = async () => {
     try {
-      console.log("Starting logout process...")
       await authLogout()
-      console.log("Auth token cleared")
       setIsAuthenticated(false)
       toast({
         title: "Logged out successfully",
         description: "You have been logged out of your account",
       })
-      console.log("Redirecting to login page...")
-      router.push("/login")
+      router.push(ROUTES.LOGIN)
     } catch (error) {
-      console.error("Logout error:", error)
+      const authError = error as AuthError
       toast({
         variant: "destructive",
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to logout. Please try again.",
+        description: authError.message || "Failed to logout. Please try again.",
       })
     }
   }

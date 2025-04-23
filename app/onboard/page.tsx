@@ -6,16 +6,16 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { motion, AnimatePresence } from "framer-motion"
 import { Loader2, ArrowRight, ArrowLeft, BarChart3, Circle } from "lucide-react"
-import Link from "next/link"
-
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
-import { onboardingSchema, type OnboardingFormValues, RiskProfile, InvestmentType, Region } from "@/lib/validations"
+import { onboardingSchema, type OnboardingFormValues } from "@/lib/validations"
+import { RiskProfile, InvestmentType, Region } from "@/lib/constants/enums"
 import { updateUserProfile, UserError } from "@/lib/services/user"
+import Link from "next/link"
 
 export default function OnboardingPage() {
   const router = useRouter()
@@ -56,17 +56,26 @@ export default function OnboardingPage() {
   const onSubmit = async (data: OnboardingFormValues) => {
     setIsLoading(true)
     try {
-      await updateUserProfile(data)
-      toast({
-        title: "Profile updated successfully",
-        description: "Redirecting to dashboard...",
-      })
-      router.push("/dashboard")
+      const response = await updateUserProfile(data)
+      
+      if (response.success) {
+        toast({
+          title: "Profile Updated",
+          description: "Your profile has been updated successfully",
+        })
+        router.push("/dashboard")
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Update Failed",
+          description: response.details?.message || "Failed to update profile",
+        })
+      }
     } catch (error) {
       if (error instanceof UserError) {
         toast({
           variant: "destructive",
-          title: "Error",
+          title: "Update Failed",
           description: error.message,
         })
       } else {

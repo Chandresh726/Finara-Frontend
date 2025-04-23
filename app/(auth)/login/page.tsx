@@ -14,13 +14,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { loginSchema, type LoginFormValues } from "@/lib/validations"
 import { login } from "@/lib/services/auth"
-import { AuthError } from "@/lib/services/auth"
 import { useToast } from "@/components/ui/use-toast"
+import { AuthError } from "@/lib/types/auth"
 
 export default function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
   const { toast } = useToast()
 
   const {
@@ -40,29 +39,31 @@ export default function LoginPage() {
         password: data.password,
       })
 
-      if (response.data?.onboard) {
-        router.push("/onboard")
+      if (response.success) {
+        toast({
+          title: "Success",
+          description: "You have been logged in successfully",
+        })
+
+        if (response.data?.onboard) {
+          router.push("/onboard")
+        } else {
+          router.push("/dashboard")
+        }
       } else {
-        router.push("/dashboard")
+        toast({
+          variant: "destructive",
+          title: "Login Failed",
+          description: response.details?.message || "Invalid credentials",
+        })
       }
     } catch (error) {
       if (error instanceof AuthError) {
-        // Parse the error message to get the details.message if available
-        try {
-          const errorData = JSON.parse(error.message)
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: errorData.details?.message || errorData.message || "Login failed",
-          })
-        } catch {
-          // If parsing fails, use the original error message
-          toast({
-            variant: "destructive",
-            title: "Error",
-            description: error.message,
-          })
-        }
+        toast({
+          variant: "destructive",
+          title: "Login Failed",
+          description: error.message,
+        })
       } else {
         toast({
           variant: "destructive",
@@ -73,29 +74,6 @@ export default function LoginPage() {
     } finally {
       setIsLoading(false)
     }
-  }
-
-  if (isSuccess) {
-    return (
-      <div className="w-full max-w-md">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-          <Card className="border border-border/50 bg-card/50 backdrop-blur-sm">
-            <CardHeader className="space-y-1">
-              <div className="flex items-center justify-center">
-                <div className="rounded-full bg-green-100 dark:bg-green-900/30 p-3">
-                  <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
-                </div>
-              </div>
-              <CardTitle className="text-2xl font-bold text-center">Login Successful!</CardTitle>
-              <CardDescription className="text-center">Redirecting you to your dashboard...</CardDescription>
-            </CardHeader>
-            <CardContent className="flex justify-center">
-              <Loader2 className="h-6 w-6 animate-spin text-finance-500 dark:text-finance-400" />
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
-    )
   }
 
   return (

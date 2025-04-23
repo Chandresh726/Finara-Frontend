@@ -1,9 +1,4 @@
-export interface SignUpRequest {
-  email: string
-  password: string
-}
-
-export interface LoginRequest {
+export interface AuthRequest {
   email: string
   password: string
 }
@@ -69,5 +64,23 @@ export interface AuthResponse {
     user?: User
     session?: Session
     onboard?: boolean
+  }
+}
+
+export interface AuthContextType {
+  isAuthenticated: boolean
+  isLoading: boolean
+  logout: () => Promise<void>
+}
+
+export interface AuthError extends Error {
+  code?: string
+  status?: number
+}
+
+export class AuthError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = "AuthError"
   }
 } 
