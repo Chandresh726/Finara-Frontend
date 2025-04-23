@@ -5,7 +5,7 @@ import { Suspense } from "react"
 import { cn } from "@/lib/utils"
 import { DashboardHeader } from "@/components/dashboard/header"
 import { Sidebar } from "@/components/dashboard/sidebar"
-import { PortfolioOverview } from "@/components/dashboard/portfolio-overview"
+import { Portfolio } from "@/components/dashboard/portfolio"
 import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton"
 
 // Enable Partial Prerendering for this page
@@ -40,9 +40,8 @@ export default function DashboardPage() {
           isSidebarCollapsed ? "md:ml-0" : "md:ml-80"
         )}>
           <div className="mx-auto max-w-6xl p-6">
-            <h1 className="text-3xl font-bold mb-6">Dashboard</h1>
             <Suspense fallback={<DashboardSkeleton />}>
-              <PortfolioOverview />
+              <Portfolio />
             </Suspense>
           </div>
         </main>

@@ -1,0 +1,30 @@
+"use client"
+
+import { useState } from "react"
+import { PortfolioHeader } from "./portfolio/portfolio-header"
+import { PortfolioOverview } from "./portfolio/overview"
+import { PortfolioHoldings } from "./portfolio/holdings"
+
+export type PortfolioView = 'overview' | 'holdings'
+
+export function Portfolio() {
+  const [view, setView] = useState<PortfolioView>('overview')
+  const [searchQuery, setSearchQuery] = useState('')
+
+  return (
+    <div className="flex flex-col gap-4">
+      <PortfolioHeader 
+        currentView={view}
+        onViewChange={setView}
+      />
+      
+      {view === 'overview' && <PortfolioOverview />}
+      {view === 'holdings' && (
+        <PortfolioHoldings 
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+        />
+      )}
+    </div>
+  )
+}
