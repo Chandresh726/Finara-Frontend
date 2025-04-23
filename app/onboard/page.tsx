@@ -14,7 +14,8 @@ import { useToast } from "@/components/ui/use-toast"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { onboardingSchema, type OnboardingFormValues } from "@/lib/validations"
 import { RiskProfile, InvestmentType, Region } from "@/lib/constants/enums"
-import { updateUserProfile, UserError } from "@/lib/services/user"
+import { updateUserProfile } from "@/lib/services/user"
+import { UserError } from "@/lib/types/user"
 import Link from "next/link"
 
 export default function OnboardingPage() {
