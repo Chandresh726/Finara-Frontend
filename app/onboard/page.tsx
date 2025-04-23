@@ -27,7 +27,7 @@ export default function OnboardingPage() {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors },
     watch,
     setValue,
     trigger,

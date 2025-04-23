@@ -1,12 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Suspense } from "react"
-import { DashboardHeader } from "@/components/dashboard/header"
-import { PortfolioOverview } from "@/components/dashboard/portfolio-overview"
-import { Sidebar } from "@/components/dashboard/sidebar"
-import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
+import { DashboardHeader } from "@/components/dashboard/header"
+import { Sidebar } from "@/components/dashboard/sidebar"
+import { PortfolioOverview } from "@/components/dashboard/portfolio-overview"
+import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton"
 
 // Enable Partial Prerendering for this page
 export const dynamic = "force-dynamic"
@@ -14,6 +14,16 @@ export const runtime = "nodejs"
 
 export default function DashboardPage() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+
+  useEffect(() => {
+    const handleCollapseSidebar = () => {
+      setIsSidebarCollapsed(true)
+    }
+    window.addEventListener('collapseSidebar', handleCollapseSidebar)
+    return () => {
+      window.removeEventListener('collapseSidebar', handleCollapseSidebar)
+    }
+  }, [])
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -42,21 +52,6 @@ export default function DashboardPage() {
           </div>
         </main>
       </div>
-    </div>
-  )
-}
-
-function DashboardSkeleton() {
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {Array(4)
-          .fill(0)
-          .map((_, i) => (
-            <Skeleton key={i} className="h-[120px] w-full" />
-          ))}
-      </div>
-      <Skeleton className="h-[500px] w-full" />
     </div>
   )
 }

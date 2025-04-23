@@ -41,7 +41,7 @@ export function DashboardHeader({ isSidebarCollapsed, onToggleSidebar }: Dashboa
             variant="ghost"
             size="icon"
             onClick={onToggleSidebar}
-            className="hidden md:flex"
+            className="hidden md:flex bg-background border border-border hover:bg-muted"
           >
             <Bot className={cn(
               "h-5 w-5",
@@ -53,19 +53,19 @@ export function DashboardHeader({ isSidebarCollapsed, onToggleSidebar }: Dashboa
           <div className="flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-[180px] justify-between">
+                <Button variant="outline" className="w-[180px] justify-between min-w-[180px]">
                   <span>Main Portfolio</span>
                   <span className="opacity-50">▼</span>
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
+              <DropdownMenuContent align="start" className="min-w-[180px] w-[180px]">
                 <DropdownMenuItem>Main Portfolio</DropdownMenuItem>
                 <DropdownMenuItem>Growth Portfolio</DropdownMenuItem>
                 <DropdownMenuItem>Retirement Portfolio</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem className="flex items-center gap-2">
                   <Plus className="h-4 w-4" />
-                  Create New Portfolio
+                  New Portfolio
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
