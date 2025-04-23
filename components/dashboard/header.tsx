@@ -28,20 +28,53 @@ export function DashboardHeader({ isSidebarCollapsed, onToggleSidebar }: Dashboa
 
   return (
     <header className="sticky top-0 z-30 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex h-16 items-center px-4">
+      <div className="flex h-16 items-center justify-between px-4">
+        {/* Left section with Finara logo and toggle */}
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Link href="/dashboard" className="flex items-center gap-2">
-              <BarChart3 className="h-6 w-6 text-finance-500 dark:text-finance-400" />
-              <span className="font-bold text-xl">Finara</span>
-            </Link>
-          </div>
+          <BarChart3 
+            className={cn(
+              "h-6 w-6 cursor-pointer transition-colors",
+              isSidebarCollapsed 
+                ? "text-muted-foreground" 
+                : "text-finance-500 dark:text-finance-400"
+            )}
+            onClick={onToggleSidebar}
+          />
+          <Link href="/" className="hidden md:block">
+            <span className="font-bold text-2xl">Finara</span>
+          </Link>
+        </div>
 
+        {/* Center section with portfolio selector */}
+        <div className="absolute left-1/2 transform -translate-x-1/2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-[180px] text-center">
+                <span className="mx-auto">Main Portfolio</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center" className="w-[180px]">
+              <DropdownMenuItem className="justify-center">Main Portfolio</DropdownMenuItem>
+              <DropdownMenuItem className="justify-center">Growth Portfolio</DropdownMenuItem>
+              <DropdownMenuItem className="justify-center">Retirement Portfolio</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <div className="flex items-center justify-center w-full">
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Portfolio
+                </div>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        {/* Right section with theme toggle and user menu */}
+        <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="icon"
             onClick={onToggleSidebar}
-            className="hidden md:flex bg-background border border-border hover:bg-muted"
+            className="md:hidden"
           >
             <Bot className={cn(
               "h-5 w-5",
@@ -50,29 +83,6 @@ export function DashboardHeader({ isSidebarCollapsed, onToggleSidebar }: Dashboa
             <span className="sr-only">Toggle AI chat</span>
           </Button>
 
-          <div className="flex items-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="w-[180px] justify-between min-w-[180px]">
-                  <span>Main Portfolio</span>
-                  <span className="opacity-50">▼</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="min-w-[180px] w-[180px]">
-                <DropdownMenuItem>Main Portfolio</DropdownMenuItem>
-                <DropdownMenuItem>Growth Portfolio</DropdownMenuItem>
-                <DropdownMenuItem>Retirement Portfolio</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="flex items-center gap-2">
-                  <Plus className="h-4 w-4" />
-                  New Portfolio
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </div>
-
-        <div className="flex flex-1 items-center justify-end space-x-4">
           <ThemeToggle />
 
           <DropdownMenu>

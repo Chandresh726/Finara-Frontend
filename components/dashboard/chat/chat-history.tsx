@@ -35,7 +35,7 @@ export function ChatHistoryList({
       isExpanded ? "max-h-[400px]" : "max-h-0"
     )}>
       <ScrollArea className="max-h-[400px] [&_::-webkit-scrollbar]:w-1.5 [&_::-webkit-scrollbar-thumb]:rounded-full">
-        <div className="py-1">
+        <div className="py-1 px-2">
           {history.map((chat, index) => (
             <div key={chat.id} className="px-1">
               <button

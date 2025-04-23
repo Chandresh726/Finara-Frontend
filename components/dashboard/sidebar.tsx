@@ -10,10 +10,11 @@ import { ChatInput } from "./chat/chat-input"
 import { ChatHistory, ChatMessage } from "@/lib/types/chat"
 
 interface SidebarProps {
-  className?: string
+  className?: string;
+  onClose?: () => void;
 }
 
-export function Sidebar({ className }: SidebarProps) {
+export function Sidebar({ className, onClose }: SidebarProps) {
   const [isHistoryExpanded, setIsHistoryExpanded] = useState(false)
   const [selectedChat, setSelectedChat] = useState("current")
   const [currentTitle, setCurrentTitle] = useState("New Chat")
@@ -69,8 +70,8 @@ export function Sidebar({ className }: SidebarProps) {
   }
 
   const handleClose = () => {
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('collapseSidebar'))
+    if (onClose) {
+      onClose();
     }
   }
 

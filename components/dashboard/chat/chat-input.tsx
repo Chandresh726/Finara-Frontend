@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useRef } from "react"
-import { Send, Sparkles } from "lucide-react"
+import { SendHorizonal, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import {
@@ -48,9 +48,9 @@ export function ChatInput({
   }, [message, adjustTextareaHeight])
 
   return (
-    <div className="p-3 border-t space-y-2 bg-background">
+    <div className="p-2 border-t space-y-2 bg-background">
       <Select value={modelType} onValueChange={onModelChange}>
-        <SelectTrigger className="h-7 text-xs w-full min-h-0 py-1">
+        <SelectTrigger className="h-7 text-xs w-full min-h-0">
           <div className="flex items-center gap-1">
             <Sparkles className="h-3 w-3" />
             <SelectValue>{modelType}</SelectValue>
@@ -59,7 +59,7 @@ export function ChatInput({
         <SelectContent>
           {Object.entries(ModelType).map(([key, value]) => (
             <SelectItem key={key} value={value} className="text-xs">
-              {key}
+              {value}
             </SelectItem>
           ))}
         </SelectContent>
@@ -85,7 +85,7 @@ export function ChatInput({
           className="h-8 w-8 bg-gradient-primary hover:bg-gradient-primary hover:opacity-90 text-white"
           onClick={onSend}
         >
-          <Send className="h-4 w-4" />
+          <SendHorizonal className="h-4 w-4" />
           <span className="sr-only">Send message</span>
         </Button>
       </div>

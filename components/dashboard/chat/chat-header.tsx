@@ -19,7 +19,7 @@ export function ChatHeader({
   onClose
 }: ChatHeaderProps) {
   return (
-    <div className="flex w-full items-center p-3 border-b gap-2">
+    <div className="flex w-full items-center p-2 border-b gap-2">
       <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={onNewChat}>
         <Plus className="h-4 w-4" />
         <span className="sr-only">New chat</span>

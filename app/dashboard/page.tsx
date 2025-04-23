@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Suspense } from "react"
 import { cn } from "@/lib/utils"
 import { DashboardHeader } from "@/components/dashboard/header"
@@ -15,16 +15,6 @@ export const runtime = "nodejs"
 export default function DashboardPage() {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
 
-  useEffect(() => {
-    const handleCollapseSidebar = () => {
-      setIsSidebarCollapsed(true)
-    }
-    window.addEventListener('collapseSidebar', handleCollapseSidebar)
-    return () => {
-      window.removeEventListener('collapseSidebar', handleCollapseSidebar)
-    }
-  }, [])
-
   return (
     <div className="flex min-h-screen flex-col">
       <DashboardHeader 
@@ -38,7 +28,12 @@ export default function DashboardPage() {
             isSidebarCollapsed ? "w-0" : "w-80"
           )}
         >
-          {!isSidebarCollapsed && <Sidebar className="h-[calc(100vh-4rem)]" />}
+          {!isSidebarCollapsed && (
+            <Sidebar 
+              className="h-[calc(100vh-4rem)]" 
+              onClose={() => setIsSidebarCollapsed(true)}
+            />
+          )}
         </div>
         <main className={cn(
           "flex-1 overflow-y-auto transition-all duration-300",
