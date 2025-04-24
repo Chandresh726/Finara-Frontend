@@ -4,8 +4,11 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { motion } from "framer-motion"
 import { ArrowRight, ChevronDown } from "lucide-react"
+import { useAuth } from "@/lib/contexts/auth-context"
 
 export function Hero() {
+  const { isAuthenticated } = useAuth()
+  
   const scrollToFeatures = () => {
     const featuresSection = document.getElementById("features")
     if (featuresSection) {
@@ -60,16 +63,26 @@ export function Hero() {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="flex flex-col sm:flex-row gap-4"
           >
-            <Link href="/signup">
-              <Button size="lg" className="bg-gradient-primary hover:opacity-90 transition-opacity">
-                Get Started <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-            <Link href="/login">
-              <Button size="lg" variant="outline">
-                Login to Your Account
-              </Button>
-            </Link>
+            {isAuthenticated ? (
+              <Link href="/dashboard">
+                <Button size="lg" className="bg-gradient-primary hover:opacity-90 transition-opacity">
+                  View Dashboard <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link href="/signup">
+                  <Button size="lg" className="bg-gradient-primary hover:opacity-90 transition-opacity">
+                    Get Started <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+                <Link href="/login">
+                  <Button size="lg" variant="outline">
+                    Login to Your Account
+                  </Button>
+                </Link>
+              </>
+            )}
           </motion.div>
 
           <motion.button

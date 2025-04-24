@@ -1,7 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { BarChart3, Bot, LineChart, RefreshCw, TrendingUp, Shield, Bell } from "lucide-react"
+import { BarChart3, Bot, LineChart, RefreshCw, TrendingUp, Shield, Globe } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 const features = [
@@ -31,9 +31,9 @@ const features = [
     icon: <LineChart className="h-8 w-8 text-finance-500 dark:text-finance-400" />,
   },
   {
-    title: "Custom Alerts",
-    description: "Stay informed with personalized alerts for market movements, portfolio changes, and investment opportunities.",
-    icon: <Bell className="h-8 w-8 text-finance-500 dark:text-finance-400" />,
+    title: "Global Diversification",
+    description: "Access diverse investment opportunities across multiple regions and asset types, from stocks and bonds to ETFs and cryptocurrencies.",
+    icon: <Globe className="h-8 w-8 text-finance-500 dark:text-finance-400" />,
   },
 ]
 

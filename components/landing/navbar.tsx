@@ -6,10 +6,12 @@ import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { motion } from "framer-motion"
 import { BarChart3, Menu, X } from "lucide-react"
 import { useState, useEffect } from "react"
+import { useAuth } from "@/lib/contexts/auth-context"
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const { isAuthenticated } = useAuth()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -81,12 +83,20 @@ export function Navbar() {
 
         <div className="hidden md:flex items-center gap-4">
           <ThemeToggle />
-          <Link href="/login">
-            <Button variant="ghost">Login</Button>
-          </Link>
-          <Link href="/signup">
-            <Button className="bg-gradient-primary hover:opacity-90 transition-opacity">Get Started</Button>
-          </Link>
+          {isAuthenticated ? (
+            <Link href="/dashboard">
+              <Button className="bg-gradient-primary hover:opacity-90 transition-opacity">Dashboard</Button>
+            </Link>
+          ) : (
+            <>
+              <Link href="/login">
+                <Button variant="ghost">Login</Button>
+              </Link>
+              <Link href="/signup">
+                <Button className="bg-gradient-primary hover:opacity-90 transition-opacity">Get Started</Button>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -129,14 +139,26 @@ export function Navbar() {
               About
             </Link>
             <div className="flex flex-col gap-2 pt-2 border-t border-border">
-              <Link href="/login" onClick={() => setIsMenuOpen(false)}>
-                <Button variant="outline" className="w-full">
-                  Login
-                </Button>
-              </Link>
-              <Link href="/signup" onClick={() => setIsMenuOpen(false)}>
-                <Button className="w-full bg-gradient-primary hover:opacity-90 transition-opacity">Get Started</Button>
-              </Link>
+              {isAuthenticated ? (
+                <Link href="/dashboard" onClick={() => setIsMenuOpen(false)}>
+                  <Button className="w-full bg-gradient-primary hover:opacity-90 transition-opacity">
+                    Dashboard
+                  </Button>
+                </Link>
+              ) : (
+                <>
+                  <Link href="/login" onClick={() => setIsMenuOpen(false)}>
+                    <Button variant="outline" className="w-full">
+                      Login
+                    </Button>
+                  </Link>
+                  <Link href="/signup" onClick={() => setIsMenuOpen(false)}>
+                    <Button className="w-full bg-gradient-primary hover:opacity-90 transition-opacity">
+                      Get Started
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </motion.div>

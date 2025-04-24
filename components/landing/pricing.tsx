@@ -9,12 +9,12 @@ import Link from "next/link"
 const pricingPlans = [
   {
     name: "Starter",
-    price: "$19",
+    price: "$0",
     description: "Perfect for beginners and individual investors",
     features: [
       "AI-powered portfolio suggestions",
       "Basic market insights",
-      "Up to 5 investment portfolios",
+      "Up to 3 investment portfolios",
       "Email support",
       "Mobile app access",
     ],
