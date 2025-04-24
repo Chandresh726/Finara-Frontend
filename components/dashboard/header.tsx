@@ -3,9 +3,10 @@
 import { useState } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { BarChart3, Menu, Plus, User, Bot } from "lucide-react"
+import { BarChart3, Plus, User, Bot } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
+import { NewPortfolioDialog } from "./new-portfolio-dialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,22 +27,21 @@ export function DashboardHeader({ isSidebarCollapsed, onToggleSidebar }: Dashboa
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { logout } = useAuth()
 
+  const handleCreatePortfolio = (title: string, description: string) => {
+    // Handle portfolio creation here
+    console.log('Creating portfolio:', { title, description })
+  }
+
   return (
     <header className="sticky top-0 z-30 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-16 items-center justify-between px-4">
-        {/* Left section with Finara logo and toggle */}
+        {/* Left section with Finara logo */}
         <div className="flex items-center gap-4">
-          <BarChart3 
-            className={cn(
-              "h-6 w-6 cursor-pointer transition-colors",
-              isSidebarCollapsed 
-                ? "text-muted-foreground" 
-                : "text-finance-500 dark:text-finance-400"
-            )}
-            onClick={onToggleSidebar}
-          />
           <Link href="/" className="hidden md:block">
-            <span className="font-bold text-2xl">Finara</span>
+            <div className="flex items-center gap-2">
+              <BarChart3 className="h-6 w-6 text-finance-500 dark:text-finance-400" />
+              <span className="font-bold text-2xl">Finara</span>
+            </div>
           </Link>
         </div>
 
@@ -58,12 +58,7 @@ export function DashboardHeader({ isSidebarCollapsed, onToggleSidebar }: Dashboa
               <DropdownMenuItem className="justify-center">Growth Portfolio</DropdownMenuItem>
               <DropdownMenuItem className="justify-center">Retirement Portfolio</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <div className="flex items-center justify-center w-full">
-                  <Plus className="h-4 w-4 mr-2" />
-                  New Portfolio
-                </div>
-              </DropdownMenuItem>
+              <NewPortfolioDialog onCreatePortfolio={handleCreatePortfolio} />
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

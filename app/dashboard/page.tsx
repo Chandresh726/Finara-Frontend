@@ -41,7 +41,10 @@ export default function DashboardPage() {
         )}>
           <div className="mx-auto max-w-6xl p-6">
             <Suspense fallback={<DashboardSkeleton />}>
-              <Portfolio />
+              <Portfolio 
+                isSidebarCollapsed={isSidebarCollapsed}
+                onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+              />
             </Suspense>
           </div>
         </main>

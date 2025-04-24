@@ -7,15 +7,22 @@ import { PortfolioHoldings } from "./portfolio/holdings"
 
 export type PortfolioView = 'overview' | 'holdings'
 
-export function Portfolio() {
+interface PortfolioProps {
+  isSidebarCollapsed: boolean
+  onToggleSidebar: () => void
+}
+
+export function Portfolio({ isSidebarCollapsed, onToggleSidebar }: PortfolioProps) {
   const [view, setView] = useState<PortfolioView>('overview')
   const [searchQuery, setSearchQuery] = useState('')
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-6">
       <PortfolioHeader 
         currentView={view}
         onViewChange={setView}
+        isSidebarCollapsed={isSidebarCollapsed}
+        onToggleSidebar={onToggleSidebar}
       />
       
       {view === 'overview' && <PortfolioOverview />}
