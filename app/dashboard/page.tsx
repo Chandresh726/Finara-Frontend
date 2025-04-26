@@ -7,13 +7,24 @@ import { DashboardHeader } from "@/components/dashboard/header"
 import { Sidebar } from "@/components/dashboard/sidebar"
 import { Portfolio } from "@/components/dashboard/portfolio"
 import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton"
+import { useAuth } from "@/lib/contexts/auth-context"
+import { Loader2 } from "lucide-react"
 
 // Enable Partial Prerendering for this page
 export const dynamic = "force-dynamic"
 export const runtime = "nodejs"
 
 export default function DashboardPage() {
+  const { isAuthenticated, isLoading: authLoading } = useAuth()
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+
+  if (authLoading || !isAuthenticated) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
 
   return (
     <div className="flex min-h-screen flex-col">

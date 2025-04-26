@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
@@ -16,11 +16,13 @@ import { loginSchema, type LoginFormValues } from "@/lib/validations"
 import { login } from "@/lib/services/auth"
 import { useToast } from "@/components/ui/use-toast"
 import { AuthError } from "@/lib/types/auth"
+import { useAuth } from "@/lib/contexts/auth-context"
 
 export default function LoginPage() {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
+  const { isAuthenticated, isLoading: authLoading } = useAuth()
 
   const {
     register: registerForm,
@@ -29,6 +31,12 @@ export default function LoginPage() {
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
   })
+
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      router.replace("/dashboard")
+    }
+  }, [authLoading, isAuthenticated, router])
 
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true)
@@ -74,6 +82,10 @@ export default function LoginPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  if (authLoading || isAuthenticated) {
+    return null // or a spinner if you want
   }
 
   return (

@@ -1,7 +1,6 @@
 "use client"
 
-import { use } from "react"
-import { ArrowUp, BarChart3, DollarSign} from "lucide-react"
+import { ArrowUp, ArrowDown, BarChart3, DollarSign, PieChart as PieChartIcon } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Line,
@@ -14,37 +13,7 @@ import {
   YAxis,
 } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart"
-
-const performanceData = [
-  { name: 'Jan 2024', value: 42000, growth: '+2.5%' },
-  { name: 'Feb 2024', value: 44500, growth: '+5.9%' },
-  { name: 'Mar 2024', value: 43800, growth: '-1.6%' },
-  { name: 'Apr 2024', value: 46200, growth: '+5.5%' },
-  { name: 'May 2024', value: 48100, growth: '+4.1%' },
-  { name: 'Jun 2024', value: 52000, growth: '+8.1%' },
-]
-
-type ChartConfigKey = keyof typeof chartConfig;
-
-const allocationData = [
-  { id: 'stocks-us' as ChartConfigKey, name: 'US Stocks', value: 45, amount: '$20,354.35' },
-  { id: 'stocks-india' as ChartConfigKey, name: 'India Stocks', value: 25, amount: '$11,307.97' },
-  { id: 'cryptocurrency' as ChartConfigKey, name: 'Cryptocurrency', value: 20, amount: '$9,046.38' },
-  { id: 'cash' as ChartConfigKey, name: 'Cash', value: 10, amount: '$4,523.19' },
-]
-
-const recentTransactions = [
-  { type: 'Buy', asset: 'AAPL', amount: '$2,450.00', date: '2024-03-15', change: '+2.3%' },
-  { type: 'Sell', asset: 'BTC', amount: '$1,200.00', date: '2024-03-14', change: '-1.5%' },
-  { type: 'Buy', asset: 'GOOGL', amount: '$3,100.00', date: '2024-03-13', change: '+1.8%' },
-  { type: 'Buy', asset: 'ETH', amount: '$900.00', date: '2024-03-12', change: '+3.2%' },
-]
-
-const categoryStats = [
-  { category: 'Stocks', allocation: '70%', value: '$31,662.32', change: '+15.3%' },
-  { category: 'Cryptocurrency', allocation: '20%', value: '$9,046.38', change: '+25.7%' },
-  { category: 'Cash', allocation: '10%', value: '$4,523.19', change: '0%' },
-]
+import { usePortfolio } from "@/lib/contexts/portfolio-context"
 
 const chartConfig = {
   performance: {
@@ -69,18 +38,53 @@ const chartConfig = {
   },
 }
 
-const portfolioDataPromise = Promise.resolve({
-  totalValue: "$45,231.89",
-  totalChange: "+20.1%",
-  dailyValue: "+$892.40",
-  dailyChange: "+2.3%",
-  monthlyValue: "+$7,644.12",
-  monthlyChange: "+16.8%",
-  riskLevel: "Moderate",
-})
-
 export function PortfolioOverview() {
-  const portfolioData = use(portfolioDataPromise)
+  const { portfolioDetails, isLoading } = usePortfolio()
+
+  if (isLoading) {
+    return <div>Loading...</div>
+  }
+
+  if (!portfolioDetails) {
+    return <div>No portfolio data available</div>
+  }
+
+  const { overview } = portfolioDetails
+
+  // Transform distribution data for pie chart
+  const allocationData = Object.entries(overview.distribution.investmentType).map(([type, data]) => ({
+    id: type,
+    name: type,
+    value: data.percentage,
+    amount: `$${data.marketValue.toLocaleString()}`
+  }))
+
+  // Format currency
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(value)
+  }
+
+  // Format percentage
+  const formatPercentage = (value: number | null) => {
+    if (value === null) return '0%'
+    return `${value >= 0 ? '+' : ''}${value.toFixed(2)}%`
+  }
+
+  // Check if we have enough data for charts
+  const hasPerformanceData = overview.totalValue > 0
+  const hasAllocationData = allocationData.length > 0
+
+  const EmptyChartState = ({ title }: { title: string }) => (
+    <div className="flex flex-col items-center justify-center h-[300px] text-muted-foreground">
+      <BarChart3 className="h-12 w-12 mb-4" />
+      <p>Not enough data to display {title}</p>
+    </div>
+  )
 
   return (
     <div className="space-y-6">
@@ -91,11 +95,15 @@ export function PortfolioOverview() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{portfolioData.totalValue}</div>
+            <div className="text-2xl font-bold">{formatCurrency(overview.totalValue)}</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-500 font-medium flex items-center">
-                <ArrowUp className="mr-1 h-3 w-3" />
-                {portfolioData.totalChange}
+              <span className={overview.monthlyChangePercentage >= 0 ? "text-green-500" : "text-red-500"}>
+                {overview.monthlyChangePercentage >= 0 ? (
+                  <ArrowUp className="mr-1 h-3 w-3 inline" />
+                ) : (
+                  <ArrowDown className="mr-1 h-3 w-3 inline" />
+                )}
+                {formatPercentage(overview.monthlyChangePercentage)}
               </span>{" "}
               from last month
             </p>
@@ -107,11 +115,15 @@ export function PortfolioOverview() {
             <LineChart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{portfolioData.dailyValue}</div>
+            <div className="text-2xl font-bold">{formatCurrency(overview.dailyChange)}</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-500 font-medium flex items-center">
-                <ArrowUp className="mr-1 h-3 w-3" />
-                {portfolioData.dailyChange}
+              <span className={overview.dailyChangePercentage >= 0 ? "text-green-500" : "text-red-500"}>
+                {overview.dailyChangePercentage >= 0 ? (
+                  <ArrowUp className="mr-1 h-3 w-3 inline" />
+                ) : (
+                  <ArrowDown className="mr-1 h-3 w-3 inline" />
+                )}
+                {formatPercentage(overview.dailyChangePercentage)}
               </span>{" "}
               from yesterday
             </p>
@@ -119,28 +131,32 @@ export function PortfolioOverview() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Monthly Return</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Profit/Loss</CardTitle>
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{portfolioData.monthlyValue}</div>
+            <div className="text-2xl font-bold">{formatCurrency(overview.totalProfitLoss)}</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-500 font-medium flex items-center">
-                <ArrowUp className="mr-1 h-3 w-3" />
-                {portfolioData.monthlyChange}
+              <span className={overview.totalProfitLossPercentage >= 0 ? "text-green-500" : "text-red-500"}>
+                {overview.totalProfitLossPercentage >= 0 ? (
+                  <ArrowUp className="mr-1 h-3 w-3 inline" />
+                ) : (
+                  <ArrowDown className="mr-1 h-3 w-3 inline" />
+                )}
+                {formatPercentage(overview.totalProfitLossPercentage)}
               </span>{" "}
-              from last month
+              total return
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Risk Level</CardTitle>
-            <PieChart className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Total Invested</CardTitle>
+            <PieChartIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{portfolioData.riskLevel}</div>
-            <p className="text-xs text-muted-foreground">Based on your portfolio</p>
+            <div className="text-2xl font-bold">{formatCurrency(overview.totalInvested)}</div>
+            <p className="text-xs text-muted-foreground">Current investment</p>
           </CardContent>
         </Card>
       </div>
@@ -149,12 +165,15 @@ export function PortfolioOverview() {
         <Card className="col-span-4">
           <CardHeader>
             <CardTitle>Portfolio Performance</CardTitle>
-            <CardDescription>6-month portfolio value trend showing monthly growth rates</CardDescription>
+            <CardDescription>Portfolio value trend showing growth rates</CardDescription>
           </CardHeader>
           <CardContent className="pt-4">
+            {hasPerformanceData ? (
             <div className="w-full">
               <ChartContainer config={chartConfig}>
-                <LineChart accessibilityLayer data={performanceData}>
+                  <LineChart accessibilityLayer data={[
+                    { name: 'Current', value: overview.totalValue, growth: formatPercentage(overview.totalProfitLossPercentage) }
+                  ]}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
                   <XAxis
                     dataKey="name"
@@ -168,7 +187,7 @@ export function PortfolioOverview() {
                     axisLine={false}
                     tickMargin={10}
                     fontSize={12}
-                    tickFormatter={(value) => `$${(value / 1000).toFixed(0)}K`}
+                      tickFormatter={(value) => formatCurrency(value)}
                   />
                   <ChartTooltip
                     content={({ active, payload }) => {
@@ -181,7 +200,7 @@ export function PortfolioOverview() {
                                   {payload[0].payload.name}
                                 </span>
                                 <span className="font-bold">
-                                  ${payload[0]?.value?.toLocaleString() ?? 0}
+                                    {formatCurrency(Number(payload[0]?.value ?? 0))}
                                 </span>
                                 <span className={`text-sm ${payload[0]?.payload?.growth?.startsWith('+') ? 'text-green-500' : 'text-red-500'}`}>
                                   {payload[0]?.payload?.growth}
@@ -199,110 +218,99 @@ export function PortfolioOverview() {
                     dataKey="value"
                     stroke="hsl(var(--chart-1))"
                     strokeWidth={2}
-                    dot={false}
+                      dot={{
+                        r: 4,
+                        fill: "hsl(var(--chart-1))",
+                      }}
                   />
                 </LineChart>
               </ChartContainer>
             </div>
+            ) : (
+              <EmptyChartState title="performance chart" />
+            )}
           </CardContent>
         </Card>
+
         <Card className="col-span-3">
           <CardHeader>
             <CardTitle>Asset Allocation</CardTitle>
-            <CardDescription>Current portfolio distribution across asset classes</CardDescription>
+            <CardDescription>Distribution across investment types</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="w-full">
+            {hasAllocationData ? (
+              <div className="h-[300px]">
               <ChartContainer config={chartConfig}>
-                <PieChart accessibilityLayer>
+                <div>
+                  <PieChart>
                   <Pie
                     data={allocationData}
+                      dataKey="value"
+                      nameKey="name"
                     cx="50%"
                     cy="50%"
-                    labelLine={false}
                     outerRadius={100}
-                    innerRadius={70}
-                    dataKey="value"
-                    nameKey="id"
-                    paddingAngle={2}
                   >
-                    {allocationData.map((entry) => (
+                      {allocationData.map((entry, index) => (
                       <Cell
-                        key={entry.id}
-                        fill={chartConfig[entry.id].color}
-                        stroke="transparent"
+                          key={`cell-${index}`}
+                          fill={chartConfig[entry.id as keyof typeof chartConfig]?.color || `hsl(${index * 45}, 70%, 50%)`}
                       />
                     ))}
                   </Pie>
+                    <ChartTooltip
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const data = payload[0].payload
+                          return (
+                            <div className="rounded-lg border bg-background p-2 shadow-sm">
+                              <div className="grid gap-2">
+                                <div className="flex flex-col">
+                                  <span className="text-[0.70rem] uppercase text-muted-foreground">
+                                    {data.name}
+                                  </span>
+                                  <span className="font-bold">{data.amount}</span>
+                                  <span className="text-xs text-muted-foreground">
+                                    {data.value.toFixed(2)}%
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        }
+                        return null
+                      }}
+                    />
                 </PieChart>
-              </ChartContainer>
-            </div>
-            <div className="grid grid-cols-2 gap-4 pt-4">
-              {allocationData.map((item) => (
-                <div key={item.id} className="flex items-center gap-2">
+                  <ChartLegend
+                    content={({ payload }) => {
+                      if (payload && payload.length) {
+                        return (
+                          <div className="flex flex-wrap gap-4 pt-4">
+                            {allocationData.map((entry, index) => (
+                              <div key={`legend-${index}`} className="flex items-center gap-2">
                   <div 
                     className="h-3 w-3 rounded-full" 
-                    style={{ backgroundColor: chartConfig[item.id].color }}
+                                  style={{
+                                    backgroundColor: chartConfig[entry.id as keyof typeof chartConfig]?.color || 
+                                      `hsl(${index * 45}, 70%, 50%)`
+                                  }}
                   />
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">{item.name}</span>
-                    <span className="text-xs text-muted-foreground">{item.value}%</span>
-                  </div>
+                                <span className="text-sm">{entry.name}</span>
                 </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Asset Category Stats</CardTitle>
-            <CardDescription>Breakdown by asset category</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {categoryStats.map((stat, index) => (
-                <div key={index} className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
-                  <div>
-                    <p className="font-medium">{stat.category}</p>
-                    <p className="text-sm text-muted-foreground">Allocation: {stat.allocation}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium">{stat.value}</p>
-                    <p className={`text-sm ${stat.change.startsWith('+') ? 'text-green-500' : 'text-red-500'}`}>
-                      {stat.change}
-                    </p>
-                  </div>
+                        )
+                      }
+                      return null
+                    }}
+                  />
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Transactions</CardTitle>
-            <CardDescription>Your latest portfolio activities</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {recentTransactions.map((transaction, index) => (
-                <div key={index} className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
-                  <div>
-                    <p className="font-medium">{transaction.asset}</p>
-                    <p className="text-sm text-muted-foreground">{transaction.type} • {transaction.date}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-medium">{transaction.amount}</p>
-                    <p className={`text-sm ${transaction.change.startsWith('+') ? 'text-green-500' : 'text-red-500'}`}>
-                      {transaction.change}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
+              </ChartContainer>
+              </div>
+            ) : (
+              <EmptyChartState title="allocation chart" />
+            )}
           </CardContent>
         </Card>
       </div>

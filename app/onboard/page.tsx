@@ -17,8 +17,10 @@ import { RiskProfile, InvestmentType, Region } from "@/lib/constants/enums"
 import { updateUserProfile } from "@/lib/services/user"
 import { UserError } from "@/lib/types/user"
 import Link from "next/link"
+import { useAuth } from "@/lib/contexts/auth-context"
 
 export default function OnboardingPage() {
+  const { isAuthenticated, isLoading: authLoading } = useAuth()
   const router = useRouter()
   const [currentSlide, setCurrentSlide] = useState(1)
   const [isLoading, setIsLoading] = useState(false)
@@ -97,6 +99,14 @@ export default function OnboardingPage() {
 
   const prevSlide = () => {
     setCurrentSlide(1)
+  }
+
+  if (authLoading || !isAuthenticated) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    )
   }
 
   return (

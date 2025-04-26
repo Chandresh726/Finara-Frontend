@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { motion } from "framer-motion"
 import { Check, Loader2, Mail, Lock } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,12 +16,15 @@ import { signupSchema, type SignupFormValues } from "@/lib/validations"
 import { register } from "@/lib/services/auth"
 import { useToast } from "@/components/ui/use-toast"
 import { AuthError, AuthRequest } from "@/lib/types/auth"
+import { useAuth } from "@/lib/contexts/auth-context"
 
 export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [email, setEmail] = useState("")
   const { toast } = useToast()
+  const { isAuthenticated, isLoading: authLoading } = useAuth()
+  const router = useRouter()
 
   const {
     register: registerForm,
@@ -31,6 +35,12 @@ export default function SignupPage() {
     resolver: zodResolver(signupSchema),
     mode: "onChange",
   })
+
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      router.replace("/dashboard")
+    }
+  }, [authLoading, isAuthenticated, router])
 
   const onSubmit = async (data: SignupFormValues) => {
     setIsLoading(true)
@@ -73,6 +83,10 @@ export default function SignupPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  if (authLoading || isAuthenticated) {
+    return null // or a spinner if you want
   }
 
   if (isSuccess) {

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, ReactNode } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -14,32 +14,46 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Plus } from "lucide-react"
+import { useToast } from "@/components/ui/use-toast"
 
 interface NewPortfolioDialogProps {
-  onCreatePortfolio?: (title: string, description: string) => void
+  onCreatePortfolio?: (title: string, description: string) => Promise<void>
+  children?: ReactNode
 }
 
-export function NewPortfolioDialog({ onCreatePortfolio }: NewPortfolioDialogProps) {
+export function NewPortfolioDialog({ onCreatePortfolio, children }: NewPortfolioDialogProps) {
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [isOpen, setIsOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { toast } = useToast()
 
-  const handleSubmit = () => {
-    if (onCreatePortfolio) {
-      onCreatePortfolio(title, description)
+  const handleSubmit = async () => {
+    if (!onCreatePortfolio) return
+
+    try {
+      setIsSubmitting(true)
+      await onCreatePortfolio(title, description)
+      setIsOpen(false)
+      setTitle("")
+      setDescription("")
+    } catch (error) {
+      // Error is already handled by the context
+      console.error('Failed to create portfolio:', error)
+    } finally {
+      setIsSubmitting(false)
     }
-    setIsOpen(false)
-    setTitle("")
-    setDescription("")
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <div className="flex items-center justify-center w-full px-2 py-1.5 hover:bg-accent hover:text-accent-foreground cursor-pointer">
-          <Plus className="h-4 w-4 mr-2" />
-          New Portfolio
-        </div>
+        {children || (
+          <div className="flex items-center justify-center w-full px-2 py-1.5 hover:bg-accent hover:text-accent-foreground cursor-pointer">
+            <Plus className="h-4 w-4 mr-2" />
+            New Portfolio
+          </div>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -82,14 +96,15 @@ export function NewPortfolioDialog({ onCreatePortfolio }: NewPortfolioDialogProp
               setTitle("")
               setDescription("")
             }}
+            disabled={isSubmitting}
           >
             Cancel
           </Button>
           <Button 
             onClick={handleSubmit}
-            disabled={!title.trim()}
+            disabled={!title.trim() || isSubmitting}
           >
-            Create Portfolio
+            {isSubmitting ? "Creating..." : "Create Portfolio"}
           </Button>
         </DialogFooter>
       </DialogContent>

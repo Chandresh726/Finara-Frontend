@@ -16,7 +16,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { useAuth } from "@/lib/contexts/auth-context"
+import { usePortfolio } from "@/lib/contexts/portfolio-context"
 import { cn } from "@/lib/utils"
+import { Skeleton } from "@/components/ui/skeleton"
 
 interface DashboardHeaderProps {
   isSidebarCollapsed: boolean
@@ -26,11 +28,15 @@ interface DashboardHeaderProps {
 export function DashboardHeader({ isSidebarCollapsed, onToggleSidebar }: DashboardHeaderProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { logout } = useAuth()
+  const { 
+    portfolios, 
+    selectedPortfolio, 
+    selectPortfolio, 
+    createPortfolio,
+    isLoading 
+  } = usePortfolio()
 
-  const handleCreatePortfolio = (title: string, description: string) => {
-    // Handle portfolio creation here
-    console.log('Creating portfolio:', { title, description })
-  }
+  const hasPortfolios = portfolios?.length > 0
 
   return (
     <header className="sticky top-0 z-30 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -47,20 +53,39 @@ export function DashboardHeader({ isSidebarCollapsed, onToggleSidebar }: Dashboa
 
         {/* Center section with portfolio selector */}
         <div className="absolute left-1/2 transform -translate-x-1/2">
+          {isLoading ? (
+            <Skeleton className="w-[180px] h-10" />
+          ) : hasPortfolios ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="w-[180px] text-center">
-                <span className="mx-auto">Main Portfolio</span>
+                  <span className="mx-auto">
+                    {selectedPortfolio?.title || "Select Portfolio"}
+                  </span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="center" className="w-[180px]">
-              <DropdownMenuItem className="justify-center">Main Portfolio</DropdownMenuItem>
-              <DropdownMenuItem className="justify-center">Growth Portfolio</DropdownMenuItem>
-              <DropdownMenuItem className="justify-center">Retirement Portfolio</DropdownMenuItem>
+                {portfolios.map((portfolio) => (
+                  <DropdownMenuItem
+                    key={portfolio.id}
+                    className="justify-center"
+                    onClick={() => selectPortfolio(portfolio)}
+                  >
+                    {portfolio.title}
+                  </DropdownMenuItem>
+                ))}
               <DropdownMenuSeparator />
-              <NewPortfolioDialog onCreatePortfolio={handleCreatePortfolio} />
+                <NewPortfolioDialog onCreatePortfolio={createPortfolio} />
             </DropdownMenuContent>
           </DropdownMenu>
+          ) : (
+            <NewPortfolioDialog onCreatePortfolio={createPortfolio}>
+              <Button className="w-[180px]">
+                <Plus className="mr-2 h-4 w-4" />
+                New Portfolio
+              </Button>
+            </NewPortfolioDialog>
+          )}
         </div>
 
         {/* Right section with theme toggle and user menu */}
