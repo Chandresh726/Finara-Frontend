@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 import { DashboardHeader } from "@/components/dashboard/header"
 import { Sidebar } from "@/components/dashboard/sidebar"
 import { Portfolio } from "@/components/dashboard/portfolio"
-import { DashboardSkeleton } from "@/components/dashboard/dashboard-skeleton"
+import { DashboardSkeleton } from "@/components/skeleton/dashboard-skeleton"
 import { useAuth } from "@/lib/contexts/auth-context"
 import { Loader2 } from "lucide-react"
 

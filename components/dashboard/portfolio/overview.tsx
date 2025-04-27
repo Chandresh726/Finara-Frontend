@@ -14,50 +14,60 @@ import {
 } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart"
 import { usePortfolio } from "@/lib/contexts/portfolio-context"
+import { useEffect, useState } from "react"
+import { Skeleton } from "@/components/ui/skeleton"
+import { getPortfolioOverview } from "@/lib/services/portfolio"
+import { OverviewSkeleton } from "@/components/skeleton/overview-skeleton"
+import type { OverviewDistributionType, OverviewDistribution, OverviewData } from "@/lib/types/portfolio"
 
 const chartConfig = {
   performance: {
     label: "Portfolio Value",
     color: "hsl(var(--chart-1))",
   },
-  "stocks-us": {
-    label: "US Stocks",
+  "Equity - US": {
+    label: "US Equity",
     color: "hsl(151 55% 41.5%)",
   },
-  "stocks-india": {
-    label: "India Stocks",
+  "Equity - India": {
+    label: "India Equity",
     color: "hsl(242 71% 64%)",
   },
-  "cryptocurrency": {
-    label: "Crypto",
+  "Cryptocurrency": {
+    label: "Cryptocurrency",
     color: "hsl(32 95% 44%)",
-  },
-  "cash": {
-    label: "Cash",
-    color: "hsl(339 90% 51%)",
   },
 }
 
 export function PortfolioOverview() {
-  const { portfolioDetails, isLoading } = usePortfolio()
+  const { selectedPortfolio } = usePortfolio()
+  const [overview, setOverview] = useState<OverviewData | null>(null)
+  const [loading, setLoading] = useState(false)
 
-  if (isLoading) {
-    return <div>Loading...</div>
+  useEffect(() => {
+    if (!selectedPortfolio) return
+    setLoading(true)
+    getPortfolioOverview(selectedPortfolio.id)
+      .then(setOverview)
+      .finally(() => setLoading(false))
+  }, [selectedPortfolio])
+
+  if (loading) {
+    return <OverviewSkeleton />
   }
-
-  if (!portfolioDetails) {
+  if (!overview) {
     return <div>No portfolio data available</div>
   }
 
-  const { overview } = portfolioDetails
-
   // Transform distribution data for pie chart
-  const allocationData = Object.entries(overview.distribution.investmentType).map(([type, data]) => ({
-    id: type,
-    name: type,
-    value: data.percentage,
-    amount: `$${data.marketValue.toLocaleString()}`
-  }))
+  const allocationData = Object.entries(overview.distribution.investmentType)
+    .filter(([type]) => type in chartConfig) // Only include supported types
+    .map(([type, data]) => ({
+      id: type,
+      name: chartConfig[type as keyof typeof chartConfig]?.label || type,
+      value: (data as { percentage: number }).percentage,
+      amount: `$${(data as { marketValue: number }).marketValue.toLocaleString()}`
+    }))
 
   // Format currency
   const formatCurrency = (value: number) => {
@@ -76,19 +86,19 @@ export function PortfolioOverview() {
   }
 
   // Check if we have enough data for charts
-  const hasPerformanceData = overview.totalValue > 0
-  const hasAllocationData = allocationData.length > 0
+  const hasAllocationData = allocationData.some(item => item.value > 0)
 
   const EmptyChartState = ({ title }: { title: string }) => (
     <div className="flex flex-col items-center justify-center h-[300px] text-muted-foreground">
       <BarChart3 className="h-12 w-12 mb-4" />
-      <p>Not enough data to display {title}</p>
+      <p className="text-sm text-center">Not enough historical data to display {title}.</p>
+      <p className="text-xs text-center mt-2">Continue making investments to see your portfolio analytics.</p>
     </div>
   )
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Portfolio Value</CardTitle>
@@ -96,37 +106,19 @@ export function PortfolioOverview() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(overview.totalValue)}</div>
-            <p className="text-xs text-muted-foreground">
-              <span className={overview.monthlyChangePercentage >= 0 ? "text-green-500" : "text-red-500"}>
-                {overview.monthlyChangePercentage >= 0 ? (
-                  <ArrowUp className="mr-1 h-3 w-3 inline" />
-                ) : (
-                  <ArrowDown className="mr-1 h-3 w-3 inline" />
-                )}
-                {formatPercentage(overview.monthlyChangePercentage)}
-              </span>{" "}
-              from last month
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Today's Change</CardTitle>
-            <LineChart className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(overview.dailyChange)}</div>
-            <p className="text-xs text-muted-foreground">
-              <span className={overview.dailyChangePercentage >= 0 ? "text-green-500" : "text-red-500"}>
-                {overview.dailyChangePercentage >= 0 ? (
-                  <ArrowUp className="mr-1 h-3 w-3 inline" />
-                ) : (
-                  <ArrowDown className="mr-1 h-3 w-3 inline" />
-                )}
-                {formatPercentage(overview.dailyChangePercentage)}
-              </span>{" "}
-              from yesterday
-            </p>
+            {overview.monthlyChangePercentage !== undefined && (
+              <p className="text-xs text-muted-foreground">
+                <span className={overview.monthlyChangePercentage >= 0 ? "text-green-500" : "text-red-500"}>
+                  {overview.monthlyChangePercentage >= 0 ? (
+                    <ArrowUp className="mr-1 h-3 w-3 inline" />
+                  ) : (
+                    <ArrowDown className="mr-1 h-3 w-3 inline" />
+                  )}
+                  {formatPercentage(overview.monthlyChangePercentage)}
+                </span>{" "}
+                from last month
+              </p>
+            )}
           </CardContent>
         </Card>
         <Card>
@@ -168,64 +160,63 @@ export function PortfolioOverview() {
             <CardDescription>Portfolio value trend showing growth rates</CardDescription>
           </CardHeader>
           <CardContent className="pt-4">
-            {hasPerformanceData ? (
-            <div className="w-full">
-              <ChartContainer config={chartConfig}>
-                  <LineChart accessibilityLayer data={[
-                    { name: 'Current', value: overview.totalValue, growth: formatPercentage(overview.totalProfitLossPercentage) }
-                  ]}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis
-                    dataKey="name"
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={10}
-                    fontSize={12}
-                  />
-                  <YAxis
-                    tickLine={false}
-                    axisLine={false}
-                    tickMargin={10}
-                    fontSize={12}
+            {overview.performance && overview.performance.history && overview.performance.history.length > 1 ? (
+              <div className="w-full">
+                <ChartContainer config={chartConfig}>
+                  <LineChart data={overview.performance.history.map((h: any) => ({
+                    date: new Date(h.timestamp).toLocaleDateString(),
+                    value: h.totalValue,
+                    profitLoss: h.profitLoss,
+                    profitLossPercentage: h.profitLossPercentage,
+                  }))}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                    <XAxis
+                      dataKey="date"
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={10}
+                      fontSize={12}
+                    />
+                    <YAxis
+                      tickLine={false}
+                      axisLine={false}
+                      tickMargin={10}
+                      fontSize={12}
                       tickFormatter={(value) => formatCurrency(value)}
-                  />
-                  <ChartTooltip
-                    content={({ active, payload }) => {
-                      if (active && payload && payload.length) {
-                        return (
-                          <div className="rounded-lg border bg-background p-2 shadow-sm">
-                            <div className="grid gap-2">
-                              <div className="flex flex-col">
-                                <span className="text-[0.70rem] uppercase text-muted-foreground">
-                                  {payload[0].payload.name}
-                                </span>
-                                <span className="font-bold">
-                                    {formatCurrency(Number(payload[0]?.value ?? 0))}
-                                </span>
-                                <span className={`text-sm ${payload[0]?.payload?.growth?.startsWith('+') ? 'text-green-500' : 'text-red-500'}`}>
-                                  {payload[0]?.payload?.growth}
-                                </span>
+                    />
+                    <ChartTooltip
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const d = payload[0].payload;
+                          return (
+                            <div className="rounded-lg border bg-background p-2 shadow-sm">
+                              <div className="grid gap-2">
+                                <div className="flex flex-col">
+                                  <span className="text-[0.70rem] uppercase text-muted-foreground">
+                                    {d.date}
+                                  </span>
+                                  <span className="font-bold">
+                                    {formatCurrency(d.value)}
+                                  </span>
+                                  <span className={`text-sm ${d.profitLossPercentage >= 0 ? 'text-green-500' : 'text-red-500'}`}>{formatPercentage(d.profitLossPercentage)}</span>
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        )
-                      }
-                      return null
-                    }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="value"
-                    stroke="hsl(var(--chart-1))"
-                    strokeWidth={2}
-                      dot={{
-                        r: 4,
-                        fill: "hsl(var(--chart-1))",
+                          )
+                        }
+                        return null
                       }}
-                  />
-                </LineChart>
-              </ChartContainer>
-            </div>
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="value"
+                      stroke="hsl(var(--chart-1))"
+                      strokeWidth={2}
+                      dot={{ r: 4, fill: "hsl(var(--chart-1))" }}
+                    />
+                  </LineChart>
+                </ChartContainer>
+              </div>
             ) : (
               <EmptyChartState title="performance chart" />
             )}
@@ -240,76 +231,76 @@ export function PortfolioOverview() {
           <CardContent>
             {hasAllocationData ? (
               <div className="h-[300px]">
-              <ChartContainer config={chartConfig}>
-                <div>
-                  <PieChart>
-                  <Pie
-                    data={allocationData}
-                      dataKey="value"
-                      nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                  >
-                      {allocationData.map((entry, index) => (
-                      <Cell
-                          key={`cell-${index}`}
-                          fill={chartConfig[entry.id as keyof typeof chartConfig]?.color || `hsl(${index * 45}, 70%, 50%)`}
-                      />
-                    ))}
-                  </Pie>
-                    <ChartTooltip
-                      content={({ active, payload }) => {
-                        if (active && payload && payload.length) {
-                          const data = payload[0].payload
-                          return (
-                            <div className="rounded-lg border bg-background p-2 shadow-sm">
-                              <div className="grid gap-2">
-                                <div className="flex flex-col">
-                                  <span className="text-[0.70rem] uppercase text-muted-foreground">
-                                    {data.name}
-                                  </span>
-                                  <span className="font-bold">{data.amount}</span>
-                                  <span className="text-xs text-muted-foreground">
-                                    {data.value.toFixed(2)}%
-                                  </span>
+                <ChartContainer config={chartConfig}>
+                  <div>
+                    <PieChart>
+                      <Pie
+                        data={allocationData}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={100}
+                      >
+                        {allocationData.map((entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={chartConfig[entry.id as keyof typeof chartConfig]?.color}
+                          />
+                        ))}
+                      </Pie>
+                      <ChartTooltip
+                        content={({ active, payload }) => {
+                          if (active && payload && payload.length) {
+                            const data = payload[0].payload
+                            return (
+                              <div className="rounded-lg border bg-background p-2 shadow-sm">
+                                <div className="grid gap-2">
+                                  <div className="flex flex-col">
+                                    <span className="text-[0.70rem] uppercase text-muted-foreground">
+                                      {data.name}
+                                    </span>
+                                    <span className="font-bold">{data.amount}</span>
+                                    <span className="text-xs text-muted-foreground">
+                                      {data.value.toFixed(2)}%
+                                    </span>
+                                  </div>
                                 </div>
                               </div>
+                            )
+                          }
+                          return null
+                        }}
+                      />
+                    </PieChart>
+                    <ChartLegend
+                      content={({ payload }) => {
+                        if (payload && payload.length) {
+                          return (
+                            <div className="flex flex-wrap gap-4 pt-4">
+                              {allocationData.map((entry, index) => (
+                                <div key={`legend-${index}`} className="flex items-center gap-2">
+                                  <div 
+                                    className="h-3 w-3 rounded-full" 
+                                    style={{
+                                      backgroundColor: chartConfig[entry.id as keyof typeof chartConfig]?.color || 
+                                        `hsl(${index * 45}, 70%, 50%)`
+                                    }}
+                                  />
+                                  <span className="text-sm">{entry.name}</span>
+                                </div>
+                              ))}
                             </div>
                           )
                         }
                         return null
                       }}
                     />
-                </PieChart>
-                  <ChartLegend
-                    content={({ payload }) => {
-                      if (payload && payload.length) {
-                        return (
-                          <div className="flex flex-wrap gap-4 pt-4">
-                            {allocationData.map((entry, index) => (
-                              <div key={`legend-${index}`} className="flex items-center gap-2">
-                  <div 
-                    className="h-3 w-3 rounded-full" 
-                                  style={{
-                                    backgroundColor: chartConfig[entry.id as keyof typeof chartConfig]?.color || 
-                                      `hsl(${index * 45}, 70%, 50%)`
-                                  }}
-                  />
-                                <span className="text-sm">{entry.name}</span>
-                </div>
-              ))}
-            </div>
-                        )
-                      }
-                      return null
-                    }}
-                  />
-                </div>
-              </ChartContainer>
+                  </div>
+                </ChartContainer>
               </div>
             ) : (
-              <EmptyChartState title="allocation chart" />
+              <EmptyChartState title={allocationData.length === 1 ? "allocation chart (only one asset type, chart not meaningful)" : "allocation chart"} />
             )}
           </CardContent>
         </Card>

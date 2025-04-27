@@ -9,22 +9,14 @@ export interface Portfolio {
 
 // Enums
 export enum InvestmentType {
-  Gold = "Gold",
-  Cryptocurrency = "Cryptocurrency",
   Equity = "Equity",
-  Bonds = "Bonds",
-  ETF = "ETF",
-  RealEstate = "RealEstate",
-  Commodities = "Commodities"
+  Cryptocurrency = "Cryptocurrency",
 }
 
 export enum Region {
   US = "US",
   India = "India",
   Global = "Global",
-  Europe = "Europe",
-  Asia = "Asia",
-  LatinAmerica = "LatinAmerica"
 }
 
 export enum TransactionType {
@@ -73,6 +65,89 @@ export interface AssetHolding {
   lastUpdated: string
 }
 
+
+
+// Error Types
+export class PortfolioError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = "PortfolioError"
+  }
+}
+
+// Portfolio view type
+export type PortfolioView = "overview" | "holdings" | "transactions";
+
+// Portfolio Header Props
+export interface PortfolioHeaderProps {
+  currentView: PortfolioView;
+  onViewChange: (view: PortfolioView) => void;
+  isSidebarCollapsed: boolean;
+  onToggleSidebar: () => void;
+}
+
+// Trade Button Props
+export interface TradeButtonProps {
+  type: "buy" | "sell";
+  symbol: string;
+  name: string;
+  price: number;
+  change: number;
+}
+
+// Holdings
+export interface HoldingCategory {
+  categoryKey: string;
+  investmentType: string;
+  region: string;
+  totalValue: number;
+  totalInvested: number;
+  profitLossPercentage: number;
+  assets?: Asset[];
+}
+
+export interface Asset {
+  id: string;
+  assetSymbol: string;
+  investmentType: string;
+  region: string;
+  quantity: number;
+  purchasePrice: number;
+  amountInvested: number;
+  currentPrice: number;
+  currentValue: number;
+  priceChange24h: number;
+  percentageChange24h: number;
+  marketValue: number;
+  profitLoss: number;
+  profitLossPercentage: number;
+}
+
+// Overview
+export interface OverviewDistributionType {
+  [type: string]: {
+    marketValue: number;
+    count: number;
+    percentage: number;
+  };
+}
+export interface OverviewDistribution {
+  investmentType: OverviewDistributionType;
+  region: any;
+}
+export interface OverviewData {
+  totalValue: number;
+  totalInvested: number;
+  totalProfitLoss: number;
+  totalProfitLossPercentage: number;
+  monthlyChangePercentage?: number;
+  dailyChange?: number;
+  dailyChangePercentage?: number;
+  performance?: any;
+  distribution: OverviewDistribution;
+}
+
+// Transactions
 export interface Transaction {
   id: string
   type: TransactionType
@@ -85,58 +160,9 @@ export interface Transaction {
   timestamp: string
 }
 
-export interface PortfolioOverview {
-  totalValue: number
-  totalInvested: number
-  totalProfitLoss: number
-  totalProfitLossPercentage: number
-  dailyChange: number
-  dailyChangePercentage: number
-  weeklyChange: number
-  weeklyChangePercentage: number
-  monthlyChange: number
-  monthlyChangePercentage: number
-  yearlyChange: number
-  yearlyChangePercentage: number
-  distribution: {
-    investmentType: {
-      [key in InvestmentType]?: {
-        percentage: number
-        marketValue: number
-        count: number
-      }
-    }
-    region: {
-      [key in Region]?: {
-        percentage: number
-        marketValue: number
-        count: number
-      }
-    }
-  }
-}
-
-export interface PortfolioHoldings {
-  assets: AssetHolding[]
-  totalAssets: number
-  recentTransactions: Transaction[]
-}
-
-export interface PortfolioDetailsResponse {
-  portfolio: Portfolio
-  overview: PortfolioOverview
-  holdings: PortfolioHoldings
-}
-
-export interface ApiPortfolioDetailsResponse {
-  success: boolean
-  data: PortfolioDetailsResponse
-}
-
-// Error Types
-export class PortfolioError extends Error {
-  constructor(message: string) {
-    super(message)
-    this.name = "PortfolioError"
-  }
+export interface TransactionsResponse {
+  transactions: Transaction[];
+  total: number;
+  page: number;
+  limit: number;
 } 

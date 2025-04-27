@@ -1,37 +1,29 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { PortfolioHeader } from "./portfolio/portfolio-header"
-import { PortfolioOverview } from "./portfolio/overview"
-import { PortfolioHoldings } from "./portfolio/holdings"
+import { useState } from "react";
+import { PortfolioHeader } from "./portfolio/portfolio-header";
+import { PortfolioOverview } from "./portfolio/overview";
+import { PortfolioHoldings } from "./portfolio/holdings";
+import { Transactions } from "./portfolio/transactions";
+import type { PortfolioView, PortfolioHeaderProps } from "@/lib/types/portfolio";
 
-export type PortfolioView = 'overview' | 'holdings'
-
-interface PortfolioProps {
-  isSidebarCollapsed: boolean
-  onToggleSidebar: () => void
-}
+interface PortfolioProps extends Pick<PortfolioHeaderProps, 'isSidebarCollapsed' | 'onToggleSidebar'> {}
 
 export function Portfolio({ isSidebarCollapsed, onToggleSidebar }: PortfolioProps) {
-  const [view, setView] = useState<PortfolioView>('overview')
-  const [searchQuery, setSearchQuery] = useState('')
+  const [view, setView] = useState<PortfolioView>("overview");
 
   return (
     <div className="flex flex-col gap-6">
-      <PortfolioHeader 
+      <PortfolioHeader
         currentView={view}
         onViewChange={setView}
         isSidebarCollapsed={isSidebarCollapsed}
         onToggleSidebar={onToggleSidebar}
       />
-      
-      {view === 'overview' && <PortfolioOverview />}
-      {view === 'holdings' && (
-        <PortfolioHoldings 
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-        />
-      )}
+
+      {view === "overview" && <PortfolioOverview />}
+      {view === "holdings" && <PortfolioHoldings />}
+      {view === "transactions" && <Transactions />}
     </div>
-  )
+  );
 }

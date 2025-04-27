@@ -145,26 +145,24 @@ export function AddInvestment() {
             <Table>
               <TableHeader className="sticky top-0 bg-background">
                 <TableRow>
-                  <TableHead>Symbol</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Change</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
+                  <TableHead className="text-left w-32">Symbol</TableHead>
+                  <TableHead className="text-center w-24">Price</TableHead>
+                  <TableHead className="text-center w-24">Change</TableHead>
+                  <TableHead className="text-right w-32">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filteredResults.map((result) => (
-                  <TableRow key={result.symbol}>
-                    <TableCell>
+                  <TableRow key={result.symbol} className="hover:bg-muted/50">
+                    <TableCell className="text-left align-middle">
                       <div>
                         <div className="font-medium">{result.symbol}</div>
                         <div className="text-xs text-muted-foreground">{result.name}</div>
                       </div>
                     </TableCell>
-                    <TableCell>${result.price.toLocaleString()}</TableCell>
-                    <TableCell className={result.change >= 0 ? 'text-green-500' : 'text-red-500'}>
-                      {result.change >= 0 ? '+' : ''}{result.change}%
-                    </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-center align-middle font-bold">${result.price.toLocaleString()}</TableCell>
+                    <TableCell className={"text-center align-middle " + (result.change >= 0 ? 'text-green-500' : 'text-red-500')}>{result.change >= 0 ? '+' : ''}{result.change}%</TableCell>
+                    <TableCell className="text-right align-middle">
                       <TradeButton
                         type="buy"
                         symbol={result.symbol}

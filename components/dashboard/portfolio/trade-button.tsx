@@ -9,36 +9,30 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { Plus, Minus } from "lucide-react"
-
-interface TradeButtonProps {
-  type: "buy" | "sell"
-  symbol: string
-  name: string
-  price: number
-  change: number
-}
+import type { TradeButtonProps } from "@/lib/types/portfolio"
 
 export function TradeButton({ type, symbol, name, price, change }: TradeButtonProps) {
   const [quantity, setQuantity] = useState("")
   const amount = quantity ? parseFloat(quantity) * price : 0
+  const [open, setOpen] = useState(false)
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button 
           variant="ghost" 
           size="sm" 
           className={`h-8 w-full sm:w-auto ${
             type === "buy" 
-              ? "bg-green-200 hover:bg-green-300 text-green-800" 
-              : "bg-red-100 hover:bg-red-200 text-red-700"
+              ? "bg-green-500 hover:bg-green-600 text-white" 
+              : "bg-red-500 hover:bg-red-600 text-white"
           }`}
         >
-          {type === "buy" ? (
+          {/* {type === "buy" ? (
             <Plus className="h-4 w-4 mr-1" />
           ) : (
             <Minus className="h-4 w-4 mr-1" />
-          )}
+          )} */}
           {type === "buy" ? "Buy" : "Sell"}
         </Button>
       </PopoverTrigger>
@@ -90,7 +84,10 @@ export function TradeButton({ type, symbol, name, price, change }: TradeButtonPr
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setQuantity("")}
+              onClick={() => {
+                setQuantity("");
+                setOpen(false);
+              }}
             >
               Cancel
             </Button>

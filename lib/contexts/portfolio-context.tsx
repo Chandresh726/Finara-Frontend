@@ -22,7 +22,6 @@ const PortfolioContext = createContext<PortfolioContextType | undefined>(undefin
 export function PortfolioProvider({ children }: { children: ReactNode }) {
   const [portfolios, setPortfolios] = useState<Portfolio[]>([])
   const [selectedPortfolio, setSelectedPortfolio] = useState<Portfolio | null>(null)
-  const [portfolioDetails, setPortfolioDetails] = useState<PortfolioDetailsResponse | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const { toast } = useToast()
@@ -34,9 +33,10 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
       const response = await getPortfolios()
       setPortfolios(response.portfolios)
       
-      // Select first portfolio if none selected
+      // Select first portfolio if none selected and fetch its details
       if (!selectedPortfolio && response.portfolios.length > 0) {
-        setSelectedPortfolio(response.portfolios[0])
+        const firstPortfolio = response.portfolios[0];
+        setSelectedPortfolio(firstPortfolio);
       }
     } catch (err) {
       const message = err instanceof PortfolioError ? err.message : 'Failed to fetch portfolios'
@@ -66,9 +66,6 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
         title: "Success",
         description: "Portfolio created successfully",
       })
-
-      // Fetch details for the new portfolio
-      await fetchPortfolioDetails(newPortfolio.id)
     } catch (err) {
       const message = err instanceof PortfolioError ? err.message : 'Failed to create portfolio'
       setError(message)
@@ -85,51 +82,24 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
 
   const selectPortfolio = async (portfolio: Portfolio) => {
     setSelectedPortfolio(portfolio)
-    await fetchPortfolioDetails(portfolio.id)
-  }
-
-  const fetchPortfolioDetails = async (portfolioId: string) => {
-    try {
-      setIsLoading(true)
-      setError(null)
-      const response = await getPortfolioDetails(portfolioId)
-      setPortfolioDetails(response.data)
-    } catch (err) {
-      const message = err instanceof PortfolioError ? err.message : 'Failed to fetch portfolio details'
-      setError(message)
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: message,
-      })
-    } finally {
-      setIsLoading(false)
-    }
   }
 
   useEffect(() => {
     refreshPortfolios()
   }, [])
 
-  // Fetch details for the initially selected portfolio
-  useEffect(() => {
-    if (selectedPortfolio && !portfolioDetails) {
-      fetchPortfolioDetails(selectedPortfolio.id)
-    }
-  }, [selectedPortfolio])
-
   return (
     <PortfolioContext.Provider
       value={{
         portfolios,
         selectedPortfolio,
-        portfolioDetails,
+        portfolioDetails: null,
         isLoading,
         error,
         selectPortfolio,
         createPortfolio,
         refreshPortfolios,
-        fetchPortfolioDetails,
+        fetchPortfolioDetails: async () => {},
       }}
     >
       {children}
