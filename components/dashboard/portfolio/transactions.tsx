@@ -1,39 +1,50 @@
-import { useEffect, useState, useMemo } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useMemo, useEffect } from "react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { usePortfolio } from "@/lib/contexts/portfolio-context";
-import { Skeleton } from "@/components/ui/skeleton";
-import { getPortfolioTransactions } from "@/lib/services/portfolio";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select"
 import { TransactionsSkeleton } from "@/components/skeleton/transactions-skeleton";
-import type { Transaction, TransactionsResponse } from "@/lib/types/portfolio";
+import type { Transaction } from "@/lib/types/portfolio";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 
-export function Transactions() {
-  const { selectedPortfolio } = usePortfolio();
-  const [transactions, setTransactions] = useState<Transaction[] | null>(null);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [limit] = useState(10);
-  const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState("");
-  const [typeFilter, setTypeFilter] = useState("all");
+export default function Transactions() {
+  const {
+    transactions,
+    transactionsTotal,
+    transactionsPage,
+    loadingStates,
+    fetchTransactions,
+    setTransactionsPage,
+  } = usePortfolio();
 
+  const [search, setSearch] = useState<string>("");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const limit = 10;
+
+  // Only fetch if we don't have transactions data yet
   useEffect(() => {
-    if (!selectedPortfolio) return;
-    setLoading(true);
-    getPortfolioTransactions(selectedPortfolio.id, page, limit)
-      .then(data => {
-        setTransactions(data.transactions);
-        setTotal(data.total);
-      })
-      .finally(() => setLoading(false));
-  }, [selectedPortfolio, page, limit]);
+    if (!transactions || transactions.length === 0) {
+      fetchTransactions(1);
+    }
+  }, []);
+
+  const handlePageChange = (newPage: number) => {
+    setTransactionsPage(newPage);
+    fetchTransactions(newPage);
+  };
 
   // Filter and search transactions client-side
   const filteredTransactions = useMemo(() => {
     if (!transactions) return [];
-    return transactions.filter(tx => {
+    return transactions.filter((tx: Transaction) => {
       const matchesType = typeFilter === "all" || tx.type.toLowerCase() === typeFilter;
       const matchesSearch =
         search.trim() === "" ||
@@ -44,13 +55,11 @@ export function Transactions() {
     });
   }, [transactions, typeFilter, search]);
 
-  if (loading) {
-    return <TransactionsSkeleton />
+  if (loadingStates.transactions) {
+    return <TransactionsSkeleton />;
   }
 
-  if (!transactions) {
-    return <TransactionsSkeleton />
-  }
+  const totalPages = Math.ceil(transactionsTotal / limit);
 
   return (
     <Card>
@@ -71,7 +80,7 @@ export function Transactions() {
           type="text"
           placeholder="Search..."
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
           className="w-56 ml-auto"
         />
       </CardHeader>
@@ -97,7 +106,7 @@ export function Transactions() {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredTransactions.map((tx) => {
+                filteredTransactions.map((tx: Transaction) => {
                   const isBuy = tx.type.toLowerCase() === 'buy';
                   return (
                     <TableRow key={tx.id}>
@@ -106,7 +115,9 @@ export function Transactions() {
                       </TableCell>
                       <TableCell className="text-center align-middle">
                         {new Date(tx.timestamp).toLocaleDateString()}<br />
-                        <span className="text-xs text-muted-foreground">{new Date(tx.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(tx.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
                       </TableCell>
                       <TableCell className="text-center align-middle">
                         {tx.investmentType} - {tx.region}
@@ -122,24 +133,33 @@ export function Transactions() {
             </TableBody>
           </Table>
         </div>
-        <div className="flex justify-center gap-2 mt-6">
-          <button
-            className="px-3 py-1 border rounded disabled:opacity-50"
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page === 1}
-          >
-            Previous
-          </button>
-          <span className="px-4 py-1 font-semibold">
-            Page {page} of {Math.ceil(total / limit)}
-          </span>
-          <button
-            className="px-3 py-1 border rounded disabled:opacity-50"
-            onClick={() => setPage((p) => p + 1)}
-            disabled={page * limit >= total}
-          >
-            Next
-          </button>
+        <div className="mt-4 flex justify-center">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious 
+                  onClick={() => handlePageChange(transactionsPage - 1)}
+                  className={transactionsPage <= 1 ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    onClick={() => handlePageChange(page)}
+                    isActive={page === transactionsPage}
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => handlePageChange(transactionsPage + 1)}
+                  className={transactionsPage >= totalPages ? "pointer-events-none opacity-50" : ""}
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
         </div>
       </CardContent>
     </Card>

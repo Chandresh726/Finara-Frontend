@@ -14,11 +14,10 @@ import {
 } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart"
 import { usePortfolio } from "@/lib/contexts/portfolio-context"
-import { useEffect, useState } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
-import { getPortfolioOverview } from "@/lib/services/portfolio"
 import { OverviewSkeleton } from "@/components/skeleton/overview-skeleton"
 import type { OverviewDistributionType, OverviewDistribution, OverviewData } from "@/lib/types/portfolio"
+import { useEffect } from "react"
 
 const chartConfig = {
   performance: {
@@ -39,28 +38,21 @@ const chartConfig = {
   },
 }
 
+const REFRESH_INTERVAL = 30 * 1000; // 30 seconds in milliseconds
+
 export function PortfolioOverview() {
-  const { selectedPortfolio } = usePortfolio()
-  const [overview, setOverview] = useState<OverviewData | null>(null)
-  const [loading, setLoading] = useState(false)
+  const { overviewData, loadingStates, refreshOverview } = usePortfolio();
 
-  useEffect(() => {
-    if (!selectedPortfolio) return
-    setLoading(true)
-    getPortfolioOverview(selectedPortfolio.id)
-      .then(setOverview)
-      .finally(() => setLoading(false))
-  }, [selectedPortfolio])
-
-  if (loading) {
-    return <OverviewSkeleton />
+  if (loadingStates.isInitialLoad && loadingStates.overview) {
+    return <OverviewSkeleton />;
   }
-  if (!overview) {
-    return <OverviewSkeleton />
+
+  if (!overviewData) {
+    return <OverviewSkeleton />;
   }
 
   // Transform distribution data for pie chart
-  const allocationData = Object.entries(overview.distribution.investmentType)
+  const allocationData = Object.entries(overviewData.distribution.investmentType)
     .filter(([type]) => type in chartConfig) // Only include supported types
     .map(([type, data]) => ({
       id: type,
@@ -105,16 +97,16 @@ export function PortfolioOverview() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(overview.totalValue)}</div>
-            {overview.monthlyChangePercentage !== undefined && (
+            <div className="text-2xl font-bold">{formatCurrency(overviewData.totalValue)}</div>
+            {overviewData.monthlyChangePercentage !== undefined && (
               <p className="text-xs text-muted-foreground">
-                <span className={overview.monthlyChangePercentage >= 0 ? "text-green-500" : "text-red-500"}>
-                  {overview.monthlyChangePercentage >= 0 ? (
+                <span className={overviewData.monthlyChangePercentage >= 0 ? "text-green-500" : "text-red-500"}>
+                  {overviewData.monthlyChangePercentage >= 0 ? (
                     <ArrowUp className="mr-1 h-3 w-3 inline" />
                   ) : (
                     <ArrowDown className="mr-1 h-3 w-3 inline" />
                   )}
-                  {formatPercentage(overview.monthlyChangePercentage)}
+                  {formatPercentage(overviewData.monthlyChangePercentage)}
                 </span>{" "}
                 from last month
               </p>
@@ -127,15 +119,15 @@ export function PortfolioOverview() {
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(overview.totalProfitLoss)}</div>
+            <div className="text-2xl font-bold">{formatCurrency(overviewData.totalProfitLoss)}</div>
             <p className="text-xs text-muted-foreground">
-              <span className={overview.totalProfitLossPercentage >= 0 ? "text-green-500" : "text-red-500"}>
-                {overview.totalProfitLossPercentage >= 0 ? (
+              <span className={overviewData.totalProfitLossPercentage >= 0 ? "text-green-500" : "text-red-500"}>
+                {overviewData.totalProfitLossPercentage >= 0 ? (
                   <ArrowUp className="mr-1 h-3 w-3 inline" />
                 ) : (
                   <ArrowDown className="mr-1 h-3 w-3 inline" />
                 )}
-                {formatPercentage(overview.totalProfitLossPercentage)}
+                {formatPercentage(overviewData.totalProfitLossPercentage)}
               </span>{" "}
               total return
             </p>
@@ -147,7 +139,7 @@ export function PortfolioOverview() {
             <PieChartIcon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(overview.totalInvested)}</div>
+            <div className="text-2xl font-bold">{formatCurrency(overviewData.totalInvested)}</div>
             <p className="text-xs text-muted-foreground">Current investment</p>
           </CardContent>
         </Card>
@@ -160,10 +152,10 @@ export function PortfolioOverview() {
             <CardDescription>Portfolio value trend showing growth rates</CardDescription>
           </CardHeader>
           <CardContent className="pt-4">
-            {overview.performance && overview.performance.history && overview.performance.history.length > 1 ? (
+            {overviewData.performance && overviewData.performance.history && overviewData.performance.history.length > 1 ? (
               <div className="w-full">
                 <ChartContainer config={chartConfig}>
-                  <LineChart data={overview.performance.history.map((h: any) => ({
+                  <LineChart data={overviewData.performance.history.map((h: any) => ({
                     date: new Date(h.timestamp).toLocaleDateString(),
                     value: h.totalValue,
                     profitLoss: h.profitLoss,

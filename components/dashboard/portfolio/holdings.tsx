@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -21,20 +21,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AddInvestment } from "./add-investment";
 import { usePortfolio } from "@/lib/contexts/portfolio-context";
 import { Skeleton } from "@/components/ui/skeleton";
-import { getPortfolioHoldings, getPortfolioHoldingsByCategory } from "@/lib/services/portfolio";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table"
 import { Input } from "@/components/ui/input"
 import { TradeButton } from "./trade-button";
 import { HoldingsSkeleton } from "@/components/skeleton/holdings-skeleton";
-import type { HoldingCategory, Asset } from "@/lib/types/portfolio";
+import type { Asset } from "@/lib/types/portfolio";
+
+const REFRESH_INTERVAL = 30 * 1000; // 30 seconds in milliseconds
 
 export function PortfolioHoldings() {
-  const { selectedPortfolio } = usePortfolio();
-  const [categories, setCategories] = useState<HoldingCategory[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { 
+    holdings, 
+    assetsByCategory, 
+    loadingStates, 
+    fetchAssetsByCategory, 
+    selectedPortfolio,
+    refreshHoldings 
+  } = usePortfolio();
   const [activeTab, setActiveTab] = useState<string>("");
-  const [assets, setAssets] = useState<Asset[]>([]);
-  const [assetsLoading, setAssetsLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({
     assetSymbol: "",
@@ -46,36 +50,12 @@ export function PortfolioHoldings() {
   });
   const [sort, setSort] = useState<{ key: keyof Asset | null; direction: "asc" | "desc" }>({ key: null, direction: "asc" });
 
-  // Fetch categories for tabs
-  useEffect(() => {
-    if (!selectedPortfolio) return;
-    setLoading(true);
-    getPortfolioHoldings(selectedPortfolio.id)
-      .then(setCategories)
-      .finally(() => setLoading(false));
-  }, [selectedPortfolio]);
-
   // Set initial active tab
   useEffect(() => {
-    if (!activeTab && categories.length > 0) {
-      setActiveTab(categories[0].categoryKey);
+    if (!activeTab && holdings && holdings.length > 0) {
+      setActiveTab(holdings[0].categoryKey);
     }
-  }, [categories, activeTab]);
-
-  // Fetch assets for selected tab
-  useEffect(() => {
-    if (!selectedPortfolio || !activeTab) return;
-    const category = categories.find(c => c.categoryKey === activeTab);
-    if (!category) return;
-    setAssetsLoading(true);
-    getPortfolioHoldingsByCategory(selectedPortfolio.id, category.investmentType, category.region)
-      .then(data => {
-        // Find the correct category and extract its assets
-        const cat = data.find(c => c.categoryKey === activeTab);
-        setAssets(cat && Array.isArray(cat.assets) ? cat.assets : []);
-      })
-      .finally(() => setAssetsLoading(false));
-  }, [selectedPortfolio, activeTab, categories]);
+  }, [activeTab, holdings]);
 
   // Format currency
   const formatCurrency = (value: number) => {
@@ -92,6 +72,9 @@ export function PortfolioHoldings() {
     if (typeof value !== "number" || isNaN(value)) return "-";
     return `${value >= 0 ? "+" : ""}${value.toFixed(2)}%`;
   };
+
+  // Use assets from context for the active tab
+  const assets = assetsByCategory?.[activeTab] || [];
 
   // Filter assets by search and column filters
   const filteredAssets = assets.filter(asset => {
@@ -155,12 +138,12 @@ export function PortfolioHoldings() {
     });
   };
 
-  if (loading) {
-    return <HoldingsSkeleton />
+  if (loadingStates.isInitialLoad && loadingStates.holdings) {
+    return <HoldingsSkeleton />;
   }
 
-  if (!selectedPortfolio || categories.length === 0) {
-    return <div>No holdings data available</div>;
+  if (!selectedPortfolio || !holdings) {
+    return <HoldingsSkeleton />;
   }
 
   return (
@@ -191,7 +174,7 @@ export function PortfolioHoldings() {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="flex items-center justify-between mb-4 gap-2">
             <TabsList className="flex w-auto">
-              {categories.map((cat) => (
+              {holdings.map((cat) => (
                 <TabsTrigger key={cat.categoryKey} value={cat.categoryKey} className="whitespace-nowrap">
                   {cat.categoryKey}
                 </TabsTrigger>
@@ -205,7 +188,7 @@ export function PortfolioHoldings() {
               className="w-56 ml-4"
             />
           </div>
-          {categories.map((cat) => (
+          {holdings.map((cat) => (
             <TabsContent key={cat.categoryKey} value={cat.categoryKey}>
               <div className="space-y-4">
                 {/* Stat cards for the category */}
@@ -236,7 +219,7 @@ export function PortfolioHoldings() {
                   </Card>
                 </div>
                 {/* Table view for assets */}
-                {assetsLoading ? (
+                {loadingStates.holdings && !assets.length ? (
                   <div className="w-full flex flex-col gap-2">
                     {[...Array(6)].map((_, i) => (
                       <Skeleton key={i} className="h-8 w-full rounded" />
