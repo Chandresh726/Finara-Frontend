@@ -56,7 +56,7 @@ export function PortfolioOverview() {
     return <OverviewSkeleton />
   }
   if (!overview) {
-    return <div>No portfolio data available</div>
+    return <OverviewSkeleton />
   }
 
   // Transform distribution data for pie chart

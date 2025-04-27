@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Suspense } from "react"
 import { cn } from "@/lib/utils"
 import { DashboardHeader } from "@/components/dashboard/header"
@@ -17,6 +17,18 @@ export const runtime = "nodejs"
 export default function DashboardPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth()
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+
+  // Persist sidebar state in localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem("sidebarCollapsed")
+    if (stored !== null) {
+      setIsSidebarCollapsed(stored === "true")
+    }
+  }, [])
+
+  useEffect(() => {
+    localStorage.setItem("sidebarCollapsed", String(isSidebarCollapsed))
+  }, [isSidebarCollapsed])
 
   if (authLoading || !isAuthenticated) {
     return (

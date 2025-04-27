@@ -31,10 +31,10 @@ import type { HoldingCategory, Asset } from "@/lib/types/portfolio";
 export function PortfolioHoldings() {
   const { selectedPortfolio } = usePortfolio();
   const [categories, setCategories] = useState<HoldingCategory[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<string>("");
   const [assets, setAssets] = useState<Asset[]>([]);
-  const [assetsLoading, setAssetsLoading] = useState(false);
+  const [assetsLoading, setAssetsLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState({
     assetSymbol: "",

@@ -11,7 +11,7 @@ import type { Transaction, TransactionsResponse } from "@/lib/types/portfolio";
 
 export function Transactions() {
   const { selectedPortfolio } = usePortfolio();
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[] | null>(null);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [limit] = useState(10);
@@ -32,6 +32,7 @@ export function Transactions() {
 
   // Filter and search transactions client-side
   const filteredTransactions = useMemo(() => {
+    if (!transactions) return [];
     return transactions.filter(tx => {
       const matchesType = typeFilter === "all" || tx.type.toLowerCase() === typeFilter;
       const matchesSearch =
@@ -47,15 +48,8 @@ export function Transactions() {
     return <TransactionsSkeleton />
   }
 
-  if (!transactions.length) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Transactions</CardTitle>
-        </CardHeader>
-        <CardContent>No transactions found.</CardContent>
-      </Card>
-    );
+  if (!transactions) {
+    return <TransactionsSkeleton />
   }
 
   return (
