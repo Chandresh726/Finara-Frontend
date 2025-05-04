@@ -253,8 +253,8 @@ export function PortfolioHoldings() {
                           <TableCell className={"text-center " + (typeof asset.profitLossPercentage === 'number' && !isNaN(asset.profitLossPercentage) ? (asset.profitLossPercentage >= 0 ? "text-green-500" : "text-red-500") : '')}>{formatPercentage(asset.profitLossPercentage)}</TableCell>
                           <TableCell className="text-right w-28">
                             <div className="flex justify-end space-x-1">
-                              <TradeButton type="buy" symbol={asset.assetSymbol} name={asset.assetSymbol} price={asset.currentPrice} change={asset.percentageChange24h} />
-                              <TradeButton type="sell" symbol={asset.assetSymbol} name={asset.assetSymbol} price={asset.currentPrice} change={asset.percentageChange24h} />
+                              <TradeButton type="buy" symbol={asset.assetSymbol} name={asset.assetSymbol} price={asset.currentPrice} change={asset.percentageChange24h} region={asset.region} investmentType={asset.investmentType} />
+                              <TradeButton type="sell" symbol={asset.assetSymbol} name={asset.assetSymbol} price={asset.currentPrice} change={asset.percentageChange24h} region={asset.region} investmentType={asset.investmentType} />
                             </div>
                           </TableCell>
                         </TableRow>

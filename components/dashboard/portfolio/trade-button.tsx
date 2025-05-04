@@ -10,11 +10,50 @@ import {
 } from "@/components/ui/popover"
 import { Plus, Minus } from "lucide-react"
 import type { TradeButtonProps } from "@/lib/types/portfolio"
+import { usePortfolio } from "@/lib/contexts/portfolio-context"
+import { useToast } from "@/components/ui/use-toast"
+import { buyAsset, sellAsset } from "@/lib/services/portfolio"
 
-export function TradeButton({ type, symbol, name, price, change }: TradeButtonProps) {
+export function TradeButton({ type, symbol, name, price, change, region, investmentType }: TradeButtonProps) {
   const [quantity, setQuantity] = useState("")
   const amount = quantity ? parseFloat(quantity) * price : 0
   const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const { selectedPortfolio, refreshAll } = usePortfolio()
+  const { toast } = useToast()
+
+  const handleTrade = async () => {
+    if (!selectedPortfolio || !quantity || parseFloat(quantity) <= 0) return
+    setLoading(true)
+    try {
+      const payload = {
+        portfolioId: selectedPortfolio.id,
+        assetSymbol: symbol,
+        investmentType: investmentType,
+        region: region,
+        quantity: parseFloat(quantity),
+        price: price,
+      }
+      if (type === "buy") {
+        await buyAsset(payload)
+        toast({ title: "Buy Successful", description: `Bought ${quantity} ${symbol} at $${price}` })
+      } else {
+        await sellAsset(payload)
+        toast({ title: "Sell Successful", description: `Sold ${quantity} ${symbol} at $${price}` })
+      }
+      setQuantity("")
+      setOpen(false)
+      await refreshAll()
+    } catch (err: any) {
+      toast({
+        variant: "destructive",
+        title: "Trade Failed",
+        description: err?.message || "An error occurred. Please try again.",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -46,8 +85,8 @@ export function TradeButton({ type, symbol, name, price, change }: TradeButtonPr
             </div>
             <div className="text-right">
               <div className="font-medium">${price.toLocaleString()}</div>
-              <div className={`text-sm ${change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                {change >= 0 ? '+' : ''}{change}%
+              <div className={`text-sm ${parseFloat(change.toString()) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                {change}
               </div>
             </div>
           </div>
@@ -67,6 +106,7 @@ export function TradeButton({ type, symbol, name, price, change }: TradeButtonPr
                 min="0"
                 step="0.000001"
                 placeholder="Enter quantity"
+                disabled={loading}
               />
             </div>
 
@@ -88,15 +128,17 @@ export function TradeButton({ type, symbol, name, price, change }: TradeButtonPr
                 setQuantity("");
                 setOpen(false);
               }}
+              disabled={loading}
             >
               Cancel
             </Button>
             <Button
               size="sm"
               className={`px-6 ${type === "buy" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}`}
-              disabled={!quantity || parseFloat(quantity) <= 0}
+              disabled={!quantity || parseFloat(quantity) <= 0 || loading}
+              onClick={handleTrade}
             >
-              Confirm {type === "buy" ? "Buy" : "Sell"}
+              {loading ? "Processing..." : `Confirm ${type === "buy" ? "Buy" : "Sell"}`}
             </Button>
           </div>
         </div>

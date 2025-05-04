@@ -15,4 +15,18 @@ export async function updateUserProfile(data: OnboardingFormValues): Promise<Use
     }
     throw new UserError("Failed to connect to the server. Please try again later.")
   }
+}
+
+export async function getUserProfile(): Promise<UserResponse> {
+  try {
+    const response = await apiRequest<UserResponse>("/user/profile", {
+      method: "GET",
+    })
+    return response
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw new UserError(error.message)
+    }
+    throw new UserError("Failed to connect to the server. Please try again later.")
+  }
 } 

@@ -65,8 +65,6 @@ export interface AssetHolding {
   lastUpdated: string
 }
 
-
-
 // Error Types
 export class PortfolioError extends Error {
   constructor(message: string) {
@@ -93,6 +91,8 @@ export interface TradeButtonProps {
   name: string;
   price: number;
   change: number;
+  region: string;
+  investmentType: string;
 }
 
 // Holdings
@@ -165,4 +165,31 @@ export interface TransactionsResponse {
   total: number;
   page: number;
   limit: number;
+}
+
+// Market Search Types
+export interface MarketSearchMatch {
+  symbol: string;
+  name: string;
+  type: string;
+  region: string;
+  currency: string;
+  price: string;
+  changePercentage: string;
+}
+
+export interface MarketSearchResponse {
+  success: boolean;
+  data: {
+    bestMatches: MarketSearchMatch[];
+  };
+}
+
+export interface TradeRequest {
+  portfolioId: string;
+  assetSymbol: string;
+  investmentType: string;
+  region: string;
+  quantity: number;
+  price: number;
 } 

@@ -54,7 +54,7 @@ export default function LoginPage() {
         })
 
         if (response.data?.onboard) {
-          router.push("/onboard")
+          router.push("/profile")
         } else {
           router.push("/dashboard")
         }

@@ -92,3 +92,25 @@
   background-size: 200% 200%;
   @apply animate-gradient-x;
 }
+
+/* Custom Scrollbar for the whole app */
+html, body, * {
+  scrollbar-width: thin;
+  scrollbar-color: #a1a1aa #18181b; /* zinc-400 thumb, zinc-900 track */
+}
+
+/* Chrome, Edge, Safari */
+::-webkit-scrollbar {
+  width: 8px;
+  background: #18181b; /* zinc-900 */
+}
+::-webkit-scrollbar-thumb {
+  background: #a1a1aa; /* zinc-400 */
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #71717a; /* zinc-500 */
+}
+::-webkit-scrollbar-track {
+  background: #18181b;
+}

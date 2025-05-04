@@ -7,7 +7,7 @@ import {
   PortfolioError,
 } from "../types/portfolio"
 import { apiRequest, ApiError } from "./api-client"
-import type { HoldingCategory, OverviewData, TransactionsResponse } from "../types/portfolio"
+import type { HoldingCategory, OverviewData, TransactionsResponse, TradeRequest } from "../types/portfolio"
 
 export async function getPortfolios(): Promise<GetPortfoliosResponse> {
   try {
@@ -93,5 +93,41 @@ export async function getPortfolioTransactions(portfolioId: string, page: number
       throw new PortfolioError(error.message);
     }
     throw new PortfolioError("Failed to fetch portfolio transactions.");
+  }
+}
+
+export async function buyAsset(data: TradeRequest) {
+  try {
+    const response = await apiRequest<{ success: boolean; data: any }>(
+      "/portfolio/buy",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
+    return response.data;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw new PortfolioError(error.message);
+    }
+    throw new PortfolioError("Failed to complete buy transaction.");
+  }
+}
+
+export async function sellAsset(data: TradeRequest) {
+  try {
+    const response = await apiRequest<{ success: boolean; data: any }>(
+      "/portfolio/sell",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
+    return response.data;
+  } catch (error) {
+    if (error instanceof ApiError) {
+      throw new PortfolioError(error.message);
+    }
+    throw new PortfolioError("Failed to complete sell transaction.");
   }
 }
