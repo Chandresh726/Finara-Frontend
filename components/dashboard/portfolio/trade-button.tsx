@@ -8,7 +8,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { Plus, Minus } from "lucide-react"
 import type { TradeButtonProps } from "@/lib/types/portfolio"
 import { usePortfolio } from "@/lib/contexts/portfolio-context"
 import { useToast } from "@/components/ui/use-toast"

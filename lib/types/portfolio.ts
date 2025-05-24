@@ -90,7 +90,7 @@ export interface TradeButtonProps {
   symbol: string;
   name: string;
   price: number;
-  change: number;
+  change: string;
   region: string;
   investmentType: string;
 }

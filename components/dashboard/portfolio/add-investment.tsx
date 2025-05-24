@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
   Select,
@@ -18,7 +17,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Plus } from "lucide-react"
 import { TradeButton } from "./trade-button"
 import { searchMarketEquity, searchMarketCrypto } from "@/lib/services/market";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -39,36 +37,9 @@ const regionsByType: Record<string, { value: string; label: string }[]> = {
   ],
 }
 
-// Mock search results - in real app, this would come from an API
-const mockSearchResults = {
-  "equity-us": [
-    { symbol: "AAPL", name: "Apple Inc.", price: 175.5, change: 2.5 },
-    { symbol: "MSFT", name: "Microsoft Corp.", price: 380.2, change: 1.8 },
-    { symbol: "GOOGL", name: "Alphabet Inc.", price: 2850.0, change: -0.8 },
-    { symbol: "AMZN", name: "Amazon.com Inc.", price: 178.25, change: 1.2 },
-    { symbol: "NVDA", name: "NVIDIA Corporation", price: 890.5, change: 3.5 },
-    { symbol: "META", name: "Meta Platforms Inc.", price: 485.9, change: 2.1 },
-  ],
-  "equity-india": [
-    { symbol: "RELIANCE", name: "Reliance Industries", price: 2800.0, change: -0.5 },
-    { symbol: "TCS", name: "Tata Consultancy", price: 3200.0, change: 1.2 },
-    { symbol: "HDFCBANK", name: "HDFC Bank", price: 1600.0, change: 0.8 },
-    { symbol: "INFY", name: "Infosys Limited", price: 1450.75, change: -1.2 },
-    { symbol: "WIPRO", name: "Wipro Limited", price: 450.25, change: 0.9 },
-    { symbol: "BHARTIARTL", name: "Bharti Airtel", price: 890.5, change: 1.5 },
-  ],
-  "crypto-global": [
-    { symbol: "BTC", name: "Bitcoin", price: 50000.0, change: 5.2 },
-    { symbol: "ETH", name: "Ethereum", price: 3500.0, change: 3.8 },
-    { symbol: "SOL", name: "Solana", price: 120.0, change: 7.5 },
-    { symbol: "DOT", name: "Polkadot", price: 15.8, change: 4.2 },
-    { symbol: "AVAX", name: "Avalanche", price: 35.6, change: 6.8 },
-    { symbol: "MATIC", name: "Polygon", price: 0.85, change: -1.5 },
-  ],
-}
-
 // Utility to format change percentage
-function formatChangePercent(change: number | string): string {
+function formatChangePercent(change: number | string | null | undefined): string {
+  if (change === null || change === undefined || change === "") return '-';
   const num = typeof change === 'string' ? parseFloat(change) : change;
   if (isNaN(num)) return '-';
   return `${num >= 0 ? '+' : ''}${num.toFixed(2)}%`;
@@ -218,8 +189,6 @@ export function AddInvestment() {
               </TableHeader>
               <TableBody>
                 {filteredResults.map((result, idx) => {
-                  const regionCap = result.region.charAt(0).toUpperCase() + result.region.slice(1).toLowerCase();
-                  const investmentTypeCap = result.type.charAt(0).toUpperCase() + result.type.slice(1).toLowerCase();
                   const formattedChange = formatChangePercent(result.changePercentage);
                   return (
                     <TableRow key={result.symbol + '-' + result.name + '-' + idx} className="hover:bg-muted/50">
@@ -237,14 +206,14 @@ export function AddInvestment() {
                       </TableCell>
                       <TableCell className="text-right align-middle">
                         <TradeButton
-                          key={result.symbol + '-' + result.name + '-' + idx + '-' + regionCap + '-' + investmentTypeCap}
+                          key={result.symbol + '-' + result.name + '-' + idx + '-' + result.region + '-' + result.type}
                           type="buy"
                           symbol={result.symbol}
                           name={result.name}
                           price={Number(result.price)}
-                          change={Number(result.changePercentage)}
-                          region={regionCap}
-                          investmentType={investmentTypeCap}
+                          change={formattedChange}
+                          region={result.region}
+                          investmentType={result.type}
                         />
                       </TableCell>
                     </TableRow>
