@@ -47,16 +47,17 @@ export default function DashboardPage() {
       <div className="flex flex-1">
         <div 
           className={cn(
-            "hidden md:block fixed top-16 transition-all duration-300",
-            isSidebarCollapsed ? "w-0" : "w-80"
+            "hidden md:block fixed top-16 left-0 h-[calc(100vh-4rem)] z-40 transition-all duration-300",
+            isSidebarCollapsed
+              ? "-translate-x-full opacity-0 pointer-events-none"
+              : "translate-x-0 opacity-100"
           )}
         >
-          {!isSidebarCollapsed && (
-            <Sidebar 
-              className="h-[calc(100vh-4rem)]" 
-              onClose={() => setIsSidebarCollapsed(true)}
-            />
-          )}
+          {/* Sidebar is always mounted for state/cache persistence */}
+          <Sidebar 
+            className="h-full" 
+            onClose={() => setIsSidebarCollapsed(true)}
+          />
         </div>
         <main className={cn(
           "flex-1 overflow-y-auto transition-all duration-300",

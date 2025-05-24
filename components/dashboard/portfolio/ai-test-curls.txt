@@ -1,0 +1,171 @@
+curl --location 'http://localhost:3000/ai/chat' \
+--header 'Authorization: Bearer {}' \
+--header 'Content-Type: application/json' \
+--data '{
+    "portfolioId": {},
+    "title": "My First AI Chat"
+}'
+res - 
+{
+    "success": true,
+    "data": {
+        "id": "1d022767-636f-4065-a6b9-d7f34b760b44",
+        "userId": "f3f67d18-7996-496d-83b7-dbcb296cef79",
+        "portfolioId": "d0380930-0210-4fdb-b875-138afbd3dac5",
+        "title": "My Second AI Chat",
+        "createdAt": "2025-05-24T07:28:12.454Z",
+        "updatedAt": "2025-05-24T07:28:12.454Z",
+        "user": {
+            "id": "f3f67d18-7996-496d-83b7-dbcb296cef79",
+            "email": "kchandresh726@gmail.com",
+            "firstName": "Chandresh",
+            "lastName": "Kumar",
+            "occupation": "Software Engineer",
+            "age": 22,
+            "income": 80000,
+            "riskProfile": "Aggressive",
+            "preferredInvestmentTypes": [
+                "Equity",
+                "Cryptocurrency"
+            ],
+            "preferredRegions": [
+                "US",
+                "India"
+            ],
+            "country": "India",
+            "createdAt": "2025-04-22T17:32:11.758Z",
+            "updatedAt": "2025-05-04T13:45:34.792Z"
+        },
+        "messages": []
+    }
+}
+
+curl --location 'http://localhost:3000/ai/history/{portfolioId}' \
+--header 'Authorization: Bearer {}'
+res- 
+{
+    "success": true,
+    "data": [
+        {
+            "id": "1d022767-636f-4065-a6b9-d7f34b760b44",
+            "title": "My Second AI Chat",
+            "createdAt": "2025-05-24T07:28:12.454Z",
+            "updatedAt": "2025-05-24T07:28:12.454Z"
+        },
+        {
+            "id": "9e7d012e-6b3c-4a58-92d8-24fa6d826d21",
+            "title": "My First AI Chat",
+            "createdAt": "2025-04-25T20:03:40.622Z",
+            "updatedAt": "2025-04-25T20:03:40.622Z"
+        }
+    ]
+}
+
+curl --location 'http://localhost:3000/ai/chat/{chatId}' \
+--header 'Authorization: Bearer {}'
+res -
+{
+    "success": true,
+    "data": {
+        "id": "1d022767-636f-4065-a6b9-d7f34b760b44",
+        "userId": "f3f67d18-7996-496d-83b7-dbcb296cef79",
+        "portfolioId": "d0380930-0210-4fdb-b875-138afbd3dac5",
+        "title": "My Second AI Chat",
+        "createdAt": "2025-05-24T07:28:12.454Z",
+        "updatedAt": "2025-05-24T07:28:12.454Z",
+        "user": {
+            "id": "f3f67d18-7996-496d-83b7-dbcb296cef79",
+            "email": "kchandresh726@gmail.com",
+            "firstName": "Chandresh",
+            "lastName": "Kumar",
+            "occupation": "Software Engineer",
+            "age": 22,
+            "income": 80000,
+            "riskProfile": "Aggressive",
+            "preferredInvestmentTypes": [
+                "Equity",
+                "Cryptocurrency"
+            ],
+            "preferredRegions": [
+                "US",
+                "India"
+            ],
+            "country": "India",
+            "createdAt": "2025-04-22T17:32:11.758Z",
+            "updatedAt": "2025-05-04T13:45:34.792Z"
+        },
+        "messages": [
+            {
+                "id": "c58f58fd-748f-42c8-9b75-294d9399d737",
+                "chatId": "1d022767-636f-4065-a6b9-d7f34b760b44",
+                "role": "user",
+                "content": "i have 500$ to invest , where do you think is growth opportunity",
+                "model": "GEMINI_2_FLASH",
+                "tokensUsed": null,
+                "processingTime": null,
+                "feedback": null,
+                "createdAt": "2025-05-24T07:29:22.802Z"
+            },
+            {
+                "id": "1bfe17a1-ffb2-478d-afdb-e55e96c5697d",
+                "chatId": "1d022767-636f-4065-a6b9-d7f34b760b44",
+                "role": "model",
+                "content": "Given your aggressive risk profile, interest in equity and cryptocurrency, and existing portfolio, I recommend diversifying further into high-growth potential areas. With $500, you can consider fractional shares in growth stocks or allocate a portion to a promising cryptocurrency. \n\nConsidering your existing holdings, and aiming for diversification, I suggest exploring a growth-oriented ETF focusing on technology or emerging markets. This provides broader exposure than a single stock. For the cryptocurrency portion, research smaller market cap coins with potential for higher returns, but understand the increased volatility. However, given your existing ETH holding, and the volatile nature of crypto, I would advise against adding more crypto and focus on diversifying your equity holdings. \n\nSpecifically, consider a small allocation to an Indian equity ETF to capitalize on the growth potential in the Indian market, aligning with your interest in that region.",
+                "model": "GEMINI_2_FLASH",
+                "tokensUsed": null,
+                "processingTime": null,
+                "feedback": null,
+                "createdAt": "2025-05-24T07:29:30.392Z"
+            }
+        ]
+    }
+}
+
+
+curl --location 'http://localhost:3000/ai/chat/{chatId}/message' \
+--header 'Authorization: Bearer {}' \
+--header 'Content-Type: application/json' \
+--data '{
+    "query": "i have 500$ to invest , where do you think is growth opportunity",
+    "model": "GEMINI_2_FLASH"
+}'
+res - 
+{
+    "success": true,
+    "data": {
+        "messageId": "1bfe17a1-ffb2-478d-afdb-e55e96c5697d",
+        "response": "Given your aggressive risk profile, interest in equity and cryptocurrency, and existing portfolio, I recommend diversifying further into high-growth potential areas. With $500, you can consider fractional shares in growth stocks or allocate a portion to a promising cryptocurrency. \n\nConsidering your existing holdings, and aiming for diversification, I suggest exploring a growth-oriented ETF focusing on technology or emerging markets. This provides broader exposure than a single stock. For the cryptocurrency portion, research smaller market cap coins with potential for higher returns, but understand the increased volatility. However, given your existing ETH holding, and the volatile nature of crypto, I would advise against adding more crypto and focus on diversifying your equity holdings. \n\nSpecifically, consider a small allocation to an Indian equity ETF to capitalize on the growth potential in the Indian market, aligning with your interest in that region.",
+        "actions": [
+            {
+                "type": "buy",
+                "assetSymbol": "EPI",
+                "investmentType": "Equity ETF",
+                "region": "India",
+                "quantity": 20
+            }
+        ],
+        "model": "GEMINI_2_FLASH"
+    }
+}
+
+curl --location 'http://localhost:3000/ai/chat/{messageId}/feedback' \
+--header 'Authorization: Bearer {}' \
+--header 'Content-Type: application/json' \
+--data '{
+    "isHelpful": true
+}'
+res - 
+{
+    "success": true,
+    "data": {
+        "id": "4f786ad3-5e86-4e1d-aacc-e621fe12cb81",
+        "chatId": "1d022767-636f-4065-a6b9-d7f34b760b44",
+        "role": "model",
+        "content": "Given your aggressive risk profile, interest in equity and cryptocurrency, and existing portfolio concentrated in US tech (AAPL, META), I recommend diversifying further into high-growth potential areas. With $1000, consider diversifying into emerging markets, specifically India, and allocating a smaller portion to a high-growth potential small-cap stock.\n\nSpecifically, consider a small allocation to an Indian equity ETF to capitalize on the growth potential in the Indian market, aligning with your interest in that region. Also, research smaller market cap companies with strong growth prospects but understand the increased volatility. However, given your existing ETH holding and the volatile nature of crypto, I would advise against adding more crypto and focus on diversifying your equity holdings. A small allocation could be made to a promising small-cap stock.",
+        "model": "GEMINI_2_FLASH",
+        "tokensUsed": null,
+        "processingTime": null,
+        "feedback": "like",
+        "createdAt": "2025-05-24T07:30:54.863Z"
+    }
+}
