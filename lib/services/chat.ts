@@ -38,6 +38,7 @@ export async function fetchChat(chatId: string): Promise<{ id: string; title: st
         sender: msg.role === "user" ? "user" : "ai",
         name: msg.role === "user" ? user?.firstName || "You" : "AI",
         message: msg.content,
+        actions: msg.actions || [],
       })),
     };
   } catch (error) {
@@ -67,13 +68,16 @@ export async function createChat(portfolioId: string, title: string): Promise<{ 
   }
 }
 
-export async function sendChatMessage(chatId: string, query: string, model: ModelType): Promise<string> {
+export async function sendChatMessage(chatId: string, query: string, model: ModelType): Promise<{ message: string; actions?: any[] }> {
   try {
     const response = await apiRequest<{ success: boolean; data: any }>(`/ai/chat/${chatId}/message`, {
       method: "POST",
       body: JSON.stringify({ query, model }),
     });
-    return response.data.response;
+    return {
+      message: response.data.response,
+      actions: response.data.actions || [],
+    };
   } catch (error) {
     if (error instanceof ApiError) {
       throw new ChatServiceError(error.message);

@@ -204,7 +204,8 @@ export function useChat() {
           {
             sender: "ai",
             name: "AI",
-            message: aiResponse,
+            message: aiResponse.message,
+            actions: aiResponse.actions,
           },
         ];
         // Update cache for AI response

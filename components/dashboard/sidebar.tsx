@@ -1,15 +1,11 @@
 "use client"
 
-import { useState, useOptimistic, useEffect, useRef } from "react"
+import { useState} from "react"
 import { cn } from "@/lib/utils"
-import { ModelType } from "@/lib/constants/enums"
 import { ChatHeader } from "./chat/chat-header"
 import { ChatHistoryList } from "./chat/chat-history"
 import { ChatMessages } from "./chat/chat-messages"
 import { ChatInput } from "./chat/chat-input"
-import { ChatHistory, ChatMessage } from "@/lib/types/chat"
-import { usePortfolio } from "@/lib/contexts/portfolio-context"
-import { getAuthToken } from "@/lib/services/auth"
 import { useChat } from "@/hooks/use-chat"
 import { NewChatDialog } from "./chat/new-chat-dialog"
 
