@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { motion } from "framer-motion"
 import { BarChart3, Plus, User, Bot } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
@@ -26,7 +25,6 @@ interface DashboardHeaderProps {
 }
 
 export function DashboardHeader({ isSidebarCollapsed, onToggleSidebar }: DashboardHeaderProps) {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const { logout } = useAuth()
   const { 
     portfolios, 
@@ -118,8 +116,8 @@ export function DashboardHeader({ isSidebarCollapsed, onToggleSidebar }: Dashboa
               <DropdownMenuItem asChild>
                 <Link href="/profile">Profile</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Billing</DropdownMenuItem>
+              {/* <DropdownMenuItem>Settings</DropdownMenuItem> */}
+              {/* <DropdownMenuItem>Billing</DropdownMenuItem> */}
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <button 

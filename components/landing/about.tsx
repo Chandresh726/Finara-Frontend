@@ -1,7 +1,6 @@
 "use client"
 
 import { motion } from "framer-motion"
-import { Bot, Network, Sparkles, Brain } from "lucide-react"
 import Lottie from "lottie-react"
 import aiAnimation from "@/public/animation/ai-animation.json"
 
@@ -22,7 +21,7 @@ export function About() {
             </h2>
             <div className="space-y-4">
               <p className="text-lg text-muted-foreground">
-                Founded in 2020, Finara was born from a simple observation: while AI was transforming industries
+                Founded in 2025, Finara was born from a simple observation: while AI was transforming industries
                 everywhere, personal investing remained stuck in the past.
               </p>
               <p className="text-lg text-muted-foreground">

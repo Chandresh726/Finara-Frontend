@@ -1,10 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ThemeToggle } from "@/components/ui/theme-toggle"
-import { BarChart3, Facebook, Github, Instagram, Linkedin, Twitter, Mail, Phone } from "lucide-react"
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
+import { Github, Linkedin, Twitter, Mail, Phone } from "lucide-react"
 
 export function Footer() {
   const currentYear = new Date().getFullYear()
@@ -44,11 +41,11 @@ export function Footer() {
             <ul className="space-y-2">
               <li className="flex items-center justify-center sm:justify-start text-sm sm:text-base text-muted-foreground">
                 <Mail className="h-4 w-4 mr-2" />
-                support@example.com
+                kchandresh726@gmail.com
               </li>
               <li className="flex items-center justify-center sm:justify-start text-sm sm:text-base text-muted-foreground">
                 <Phone className="h-4 w-4 mr-2" />
-                +1 (555) 123-4567
+                +91 9398610921
               </li>
             </ul>
           </div>

@@ -35,11 +35,11 @@ export function ChatInput({
     if (!textarea) return
 
     // Reset height to get the correct scrollHeight
-    textarea.style.height = '32px'
+    textarea.style.height = '40px'
     
     // Calculate new height based on content
     const scrollHeight = textarea.scrollHeight
-    const newHeight = Math.min(Math.max(scrollHeight, 32), 72) // min 32px (1 line), max 72px (3 lines)
+    const newHeight = Math.min(Math.max(scrollHeight, 40), 80) // min 40px (1 line), max 120px (3 lines)
     textarea.style.height = `${newHeight}px`
   }, [])
 
@@ -48,8 +48,8 @@ export function ChatInput({
   }, [message, adjustTextareaHeight])
 
   return (
-    <div className="p-2 border-t space-y-2 bg-background">
-      <Select value={modelType} onValueChange={onModelChange}>
+    <div className="px-2 py-4 border-t space-y-2 bg-background">
+      { /* <Select value={modelType} onValueChange={onModelChange}>
         <SelectTrigger className="h-7 text-xs w-full min-h-0">
           <div className="flex items-center gap-1">
             <Sparkles className="h-3 w-3" />
@@ -63,12 +63,12 @@ export function ChatInput({
             </SelectItem>
           ))}
         </SelectContent>
-      </Select>
+      </Select> */}
 
       <div className="flex gap-2">
         <Textarea
           ref={textareaRef}
-          placeholder="Type your message..."
+          placeholder="Ask Anything ..."
           value={message}
           onChange={e => onMessageChange(e.target.value)}
           onKeyDown={e => {
@@ -77,15 +77,15 @@ export function ChatInput({
               onSend()
             }
           }}
-          className="text-xs min-h-[32px] max-h-[72px] resize-none py-1.5 [&::-webkit-resizer]:hidden [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-0"
-          style={{ height: '32px' }}
+          className="text-xs min-h-[40px] max-h-[120px] resize-none py-2 [&::-webkit-resizer]:hidden [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-0"
+          style={{ height: '40px' }}
         />
         <Button
           size="icon"
-          className="h-8 w-8 bg-gradient-primary hover:bg-gradient-primary hover:opacity-90 text-white"
+          className="h-10 w-10 bg-gradient-primary hover:bg-gradient-primary hover:opacity-90 text-white"
           onClick={onSend}
         >
-          <SendHorizonal className="h-4 w-4" />
+          <SendHorizonal className="h-6 w-6" />
           <span className="sr-only">Send message</span>
         </Button>
       </div>

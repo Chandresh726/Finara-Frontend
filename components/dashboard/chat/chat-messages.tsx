@@ -3,9 +3,6 @@
 import { Bot, User as UserIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { ChatMessage } from "@/lib/types/chat"
-import { Card, CardHeader, CardContent, CardFooter, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import type { ChatAction } from "@/lib/types/chat"
 import { ActionCarousel } from "./action-carousel"
 
 interface ChatMessagesProps {
@@ -39,9 +36,9 @@ export function ChatMessages({ messages, messagesEndRef }: ChatMessagesProps) {
                 ) : (
                   <Bot className="h-4 w-4 text-green-500" />
                 )}
-                <span className="text-xs font-medium text-muted-foreground">{msg.name}</span>
+                <span className="text-xs font-medium text-muted-foreground">{msg.name=="AI" ? "Finara AI" : "You"}</span>
               </div>
-              <div className="text-sm px-1 py-1 whitespace-pre-line">
+              <div className="text-sm py-1 whitespace-pre-line">
                 {msg.message}
               </div>
               {/* Render AI actions as carousel */}

@@ -71,7 +71,7 @@ export function ActionCarousel({ actions, onExecute }: ActionCarouselProps) {
   };
 
   return (
-    <Carousel opts={{ align: "start", slidesToScroll: 2 }} className="w-full max-w-xs md:max-w-md mx-auto">
+    <Carousel opts={{ align: "start", slidesToScroll: 2 }} className="w-full max-w-xs md:max-w-md mx-auto py-1">
       <CarouselContent>
         {actions.map((action, i) => {
           const executed = action.executed;

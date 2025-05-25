@@ -19,9 +19,9 @@ export function ChatHeader({
   onClose
 }: ChatHeaderProps) {
   return (
-    <div className="flex w-full items-center p-2 border-b gap-2">
+    <div className={`flex w-full items-center ${isHistoryExpanded ? "border-b" : ""} p-2 gap-2`}>
       <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={onNewChat}>
-        <Plus className="h-4 w-4" />
+        <Plus className="h-6 w-6" />
         <span className="sr-only">New chat</span>
       </Button>
       <div className="flex-1 min-w-0">
@@ -34,11 +34,11 @@ export function ChatHeader({
           className="h-8 w-8" 
           onClick={onToggleHistory}
         >
-          <History className="h-4 w-4" />
+          <History className="h-6 w-6" />
           <span className="sr-only">Chat history</span>
         </Button>
         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onClose}>
-          <X className="h-4 w-4" />
+          <X className="h-6 w-6" />
           <span className="sr-only">Close chat</span>
         </Button>
       </div>

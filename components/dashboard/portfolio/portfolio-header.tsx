@@ -14,20 +14,14 @@ export function PortfolioHeader({
   return (
     <div className="flex items-center justify-between border-b pb-4">
       <div className="flex items-center gap-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onToggleSidebar}
-          className="hidden md:flex hover:bg-muted"
-        >
           <Bot
             className={cn(
-              "h-8 w-8 transition-colors",
+              "h-10 w-10 p-1 transition-colors hover:border rounded-sm hover:bg-muted",
               isSidebarCollapsed ? "text-muted-foreground" : "text-green-500"
             )}
+            onClick={onToggleSidebar}
           />
           <span className="sr-only">Toggle AI Assistant</span>
-        </Button>
         <h2 className="text-2xl font-bold">
           Portfolio {currentView.charAt(0).toUpperCase() + currentView.slice(1)}
         </h2>

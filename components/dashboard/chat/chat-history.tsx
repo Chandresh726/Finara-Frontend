@@ -32,12 +32,12 @@ export function ChatHistoryList({
   return (
     <div className={cn(
       "overflow-hidden transition-all border-b",
-      isExpanded ? "max-h-[400px]" : "max-h-0"
+      isExpanded ? "max-h-[200px]" : "max-h-0"
     )}>
-      <ScrollArea className="max-h-[400px] [&_::-webkit-scrollbar]:w-1.5 [&_::-webkit-scrollbar-thumb]:rounded-full">
-        <div className="py-1 px-2">
+      <ScrollArea className="max-h-[200px] [&_::-webkit-scrollbar]:w-1.5 [&_::-webkit-scrollbar-thumb]:rounded-full">
+        <div className="p-1">
           {history.map((chat, index) => (
-            <div key={chat.id} className="px-1">
+            <div key={chat.id} className="">
               <button
                 onClick={() => onSelectChat(chat.id)}
                 className={cn(

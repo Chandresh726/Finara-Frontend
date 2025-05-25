@@ -41,7 +41,7 @@ export function Sidebar({ className, onClose }: SidebarProps) {
   };
 
   return (
-    <div className={cn("flex h-[calc(100vh-4rem)] flex-col border-r bg-background w-80", className)}>
+    <div className={cn("flex h-[calc(100vh-4rem)] flex-col border-r border-t bg-background w-80", className)}>
       <NewChatDialog
         open={newChatDialogOpen}
         onClose={() => setNewChatDialogOpen(false)}
