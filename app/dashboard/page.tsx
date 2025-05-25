@@ -16,7 +16,7 @@ export const runtime = "nodejs"
 
 export default function DashboardPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth()
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true)
 
   // Persist sidebar state in localStorage
   useEffect(() => {

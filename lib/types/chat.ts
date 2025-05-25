@@ -1,4 +1,5 @@
 export interface ChatAction {
+  id: string;
   type: string;
   assetSymbol?: string;
   investmentType?: string;

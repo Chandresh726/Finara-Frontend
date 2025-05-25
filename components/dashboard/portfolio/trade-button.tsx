@@ -31,7 +31,6 @@ export function TradeButton({ type, symbol, name, price, change, region, investm
         investmentType: investmentType,
         region: region,
         quantity: parseFloat(quantity),
-        price: price,
       }
       if (type === "buy") {
         await buyAsset(payload)

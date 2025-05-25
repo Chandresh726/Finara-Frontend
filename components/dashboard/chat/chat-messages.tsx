@@ -13,40 +13,6 @@ interface ChatMessagesProps {
   messagesEndRef?: React.RefObject<HTMLDivElement | null>
 }
 
-function ActionCard({ action, onExecute, onDeny }: { action: ChatAction, onExecute: () => void, onDeny: () => void }) {
-  return (
-    <Card className="my-2 shadow-lg border-2 border-green-200 bg-gradient-to-br from-green-50/80 to-white animate-fade-in-up">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base flex items-center gap-2">
-          <Bot className="w-5 h-5 text-green-400 animate-pulse" />
-          AI Suggestion
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="pt-0 pb-2">
-        <div className="text-sm font-medium text-green-900">
-          {action.type === "buy" && (
-            <span>
-              Buy <span className="font-bold">{action.quantity}</span> of <span className="font-bold">{action.assetSymbol}</span> ({action.investmentType}) in <span className="font-bold">{action.region}</span>
-            </span>
-          )}
-          {action.type === "sell" && (
-            <span>
-              Sell <span className="font-bold">{action.quantity}</span> of <span className="font-bold">{action.assetSymbol}</span> ({action.investmentType}) in <span className="font-bold">{action.region}</span>
-            </span>
-          )}
-          {action.type !== "buy" && action.type !== "sell" && (
-            <span>{action.type}</span>
-          )}
-        </div>
-      </CardContent>
-      <CardFooter className="gap-2 pt-0">
-        <Button size="sm" variant="finance" className="animate-bounce-in" onClick={onExecute}>Execute</Button>
-        <Button size="sm" variant="ghost" onClick={onDeny}>Deny</Button>
-      </CardFooter>
-    </Card>
-  )
-}
-
 export function ChatMessages({ messages, messagesEndRef }: ChatMessagesProps) {
   const isEmpty = messages.length === 0;
   return (
@@ -83,7 +49,6 @@ export function ChatMessages({ messages, messagesEndRef }: ChatMessagesProps) {
                 <ActionCarousel
                   actions={msg.actions}
                   onExecute={() => {}}
-                  onDeny={() => {}}
                 />
               )}
               {index < messages.length - 1 && (

@@ -187,9 +187,9 @@ export interface MarketSearchResponse {
 
 export interface TradeRequest {
   portfolioId: string;
+  actionId?: string;
   assetSymbol: string;
   investmentType: string;
   region: string;
   quantity: number;
-  price: number;
 } 
