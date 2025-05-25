@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem, CarouselPrevious, CarouselNext } from "@/components/ui/carousel";
@@ -15,7 +15,13 @@ interface ActionCarouselProps {
 export function ActionCarousel({ actions, onExecute }: ActionCarouselProps) {
   const { selectedPortfolio, refreshAll } = usePortfolio();
   const [loadingIdx, setLoadingIdx] = useState<number | null>(null);
+  const [localActions, setLocalActions] = useState<ChatAction[]>(actions);
   const { toast } = useToast();
+
+  // Update local actions when props change
+  useEffect(() => {
+    setLocalActions(actions);
+  }, [actions]);
 
   const handleExecute = async (action: ChatAction, idx: number) => {
     if (!selectedPortfolio || action.executed) return;
@@ -54,9 +60,17 @@ export function ActionCarousel({ actions, onExecute }: ActionCarouselProps) {
         }
         toast({
           title: "Sell Successful",
-          description: `Sold ${action.quantity} ${action.assetSymbol}}`,
+          description: `Sold ${action.quantity} ${action.assetSymbol}`,
         });
       }
+      
+      // Update local state to mark the action as executed
+      setLocalActions(prevActions => {
+        const updatedActions = [...prevActions];
+        updatedActions[idx] = { ...updatedActions[idx], executed: true };
+        return updatedActions;
+      });
+      
       onExecute?.(action, idx);
       await refreshAll?.();
     } catch (err: any) {
@@ -73,7 +87,7 @@ export function ActionCarousel({ actions, onExecute }: ActionCarouselProps) {
   return (
     <Carousel opts={{ align: "start", slidesToScroll: 2 }} className="w-full max-w-xs md:max-w-md mx-auto py-1">
       <CarouselContent>
-        {actions.map((action, i) => {
+        {localActions.map((action, i) => {
           const executed = action.executed;
           return (
             <CarouselItem key={i} className="basis-1/2">
