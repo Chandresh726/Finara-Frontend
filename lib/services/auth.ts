@@ -38,22 +38,28 @@ export async function login(credentials: AuthRequest): Promise<AuthResponse> {
 }
 
 export function setAuthToken(token: string, expiresIn: number) {
-  document.cookie = `auth_token=${token}; path=/; max-age=${expiresIn}; secure; samesite=strict`
+  if (typeof document !== "undefined") {
+    document.cookie = `auth_token=${token}; path=/; max-age=${expiresIn}; secure; samesite=strict`;
+  }
 }
 
 export function getAuthToken(): string | null {
-  const cookies = document.cookie.split(";")
-  for (const cookie of cookies) {
-    const [name, value] = cookie.trim().split("=")
-    if (name === "auth_token") {
-      return value
+  if (typeof document !== "undefined") {
+    const cookies = document.cookie.split(";")
+    for (const cookie of cookies) {
+      const [name, value] = cookie.trim().split("=")
+      if (name === "auth_token") {
+        return value
+      }
     }
   }
   return null
 }
 
 export function removeAuthToken() {
-  document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; samesite=strict"
+  if (typeof document !== "undefined") {
+    document.cookie = "auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; secure; samesite=strict";
+  }
 }
 
 export function isAuthenticated(): boolean {

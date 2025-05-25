@@ -12,11 +12,13 @@ export class ApiError extends Error {
 }
 
 export function getAuthToken(): string | null {
-  const cookies = document.cookie.split(";")
-  for (const cookie of cookies) {
-    const [name, value] = cookie.trim().split("=")
-    if (name === "auth_token") {
-      return value
+  if (typeof document !== "undefined") {
+    const cookies = document.cookie.split(";")
+    for (const cookie of cookies) {
+      const [name, value] = cookie.trim().split("=")
+      if (name === "auth_token") {
+        return value
+      }
     }
   }
   return null
