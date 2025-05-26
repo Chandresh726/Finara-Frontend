@@ -170,7 +170,7 @@ export function PortfolioOverview() {
           </CardHeader>
           <CardContent className="pt-2 sm:pt-4">
             {overviewData.performance && overviewData.performance.history && overviewData.performance.history.length > 1 ? (
-              <div className="w-full h-[250px] sm:h-[300px] lg:h-[350px]">
+              <div className="w-full">
                 <ChartContainer config={chartConfig}>
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={overviewData.performance.history.map((h: any) => ({
@@ -254,7 +254,7 @@ export function PortfolioOverview() {
           </CardHeader>
           <CardContent className="pt-2 sm:pt-4">
             {hasAllocationData ? (
-              <div className="h-[250px] sm:h-[300px]">
+              <div>
                 <ChartContainer config={chartConfig}>
                   <ResponsiveContainer width="100%" height="70%">
                     <PieChart>
