@@ -10,11 +10,12 @@ import { usePortfolio } from "@/lib/contexts/portfolio-context";
 import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NewPortfolioDialog } from "./new-portfolio-dialog";
+import { DashboardSkeleton } from "@/components/skeleton/dashboard-skeleton";
 
 interface PortfolioProps extends Pick<PortfolioHeaderProps, 'isSidebarCollapsed' | 'onToggleSidebar'> {}
 
 export function Portfolio({ isSidebarCollapsed, onToggleSidebar }: PortfolioProps) {
-  const { portfolios, selectedPortfolio } = usePortfolio();
+  const { portfolios, selectedPortfolio, isLoading } = usePortfolio();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [view, setView] = useState<PortfolioView>(() => {
     if (typeof window !== "undefined") {
@@ -30,7 +31,12 @@ export function Portfolio({ isSidebarCollapsed, onToggleSidebar }: PortfolioProp
     localStorage.setItem("portfolioTab", view);
   }, [view]);
 
-  // If there are no portfolios, show a message to create one
+  // Show skeleton while loading portfolios
+  if (isLoading) {
+    return <DashboardSkeleton />;
+  }
+  
+  // If there are no portfolios after loading is complete, show a message to create one
   if (portfolios.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-12 px-4 text-center h-[calc(100vh-16rem)]">
