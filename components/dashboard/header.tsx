@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { BarChart3, Plus, User, Bot } from "lucide-react"
+import { Plus, User, Bot } from "lucide-react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { NewPortfolioDialog } from "./new-portfolio-dialog"
@@ -43,7 +44,7 @@ export function DashboardHeader({ isSidebarCollapsed, onToggleSidebar }: Dashboa
         <div className="flex items-center gap-4">
           <Link href="/" className="hidden md:block">
             <div className="flex items-center gap-2">
-              <BarChart3 className="h-6 w-6 text-finance-500 dark:text-finance-400" />
+              <Image src="/logo.png" alt="Finara Logo" width={30} height={30} className="h-8 w-auto" />
               <span className="font-bold text-2xl">Finara</span>
             </div>
           </Link>

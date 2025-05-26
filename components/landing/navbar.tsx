@@ -4,7 +4,8 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import { motion } from "framer-motion"
-import { BarChart3, Menu, X } from "lucide-react"
+import { Menu, X } from "lucide-react"
+import Image from "next/image"
 import { useState, useEffect } from "react"
 import { useAuth } from "@/lib/contexts/auth-context"
 
@@ -40,7 +41,7 @@ export function Navbar() {
     >
       <div className="container mx-auto px-4 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <BarChart3 className="h-6 w-6 text-finance-500 dark:text-finance-400" />
+          <Image src="/logo.png" alt="Finara Logo" width={30} height={30} className="h-8 w-auto" />
           <span className="font-bold text-xl">Finara</span>
         </Link>
 

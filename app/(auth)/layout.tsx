@@ -1,7 +1,7 @@
 import type React from "react"
 import { ThemeToggle } from "@/components/ui/theme-toggle"
 import Link from "next/link"
-import { BarChart3 } from "lucide-react"
+import Image from "next/image"
 
 export default function AuthLayout({
   children,
@@ -14,7 +14,7 @@ export default function AuthLayout({
       <div className="hidden md:flex md:w-1/2 bg-gradient-primary p-8 flex-col justify-between">
         <div>
           <Link href="/" className="flex items-center gap-2 text-white">
-            <BarChart3 className="h-6 w-6" />
+            <Image src="/logo.png" alt="Finara Logo" width={30} height={30} className="h-8 w-auto" />
             <span className="font-bold text-xl">Finara</span>
           </Link>
         </div>
@@ -41,7 +41,7 @@ export default function AuthLayout({
       <div className="flex-1 flex flex-col">
         <div className="flex justify-between items-center p-4 md:hidden">
           <Link href="/" className="flex items-center gap-2">
-            <BarChart3 className="h-6 w-6 text-finance-500 dark:text-finance-400" />
+            <Image src="/logo.png" alt="Finara Logo" width={30} height={30} className="h-8 w-auto" />
             <span className="font-bold text-xl">Finara</span>
           </Link>
           <ThemeToggle />

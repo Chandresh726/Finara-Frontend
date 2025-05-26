@@ -1,0 +1,17 @@
+{
+  "name": "Finara - AI-Powered Financial Portfolio Platform",
+  "short_name": "Finara",
+  "description": "The Future of Investing — AI-Powered Portfolios with advanced analytics",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1e293b",
+  "theme_color": "#0f172a",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
