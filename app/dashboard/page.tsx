@@ -44,7 +44,22 @@ export default function DashboardPage() {
         isSidebarCollapsed={isSidebarCollapsed}
         onToggleSidebar={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
       />
-      <div className="flex flex-1">
+      
+      {/* Mobile message - only visible on small screens */}
+      <div className="md:hidden flex flex-col items-center justify-center flex-1 p-6 text-center">
+        <div className="max-w-md p-6 rounded-lg bg-muted/50 border border-border shadow-sm">
+          <h2 className="text-2xl font-bold mb-2">Best viewed on a larger screen</h2>
+          <p className="text-muted-foreground mb-4">
+            For the best experience with Finara's dashboard and advanced features, please use a tablet or desktop device.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            We're working on a mobile-optimized version. Thank you for your understanding.
+          </p>
+        </div>
+      </div>
+
+      {/* Desktop dashboard - hidden on mobile */}
+      <div className="hidden md:flex flex-1">
         <div 
           className={cn(
             "hidden md:block fixed top-16 left-0 h-[calc(100vh-4rem)] z-40 transition-all duration-300",

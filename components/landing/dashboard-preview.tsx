@@ -52,7 +52,40 @@ export function DashboardPreview() {
         >
           <div className="absolute inset-0 bg-gradient-to-r from-finance-400/20 to-purple-400/20 rounded-xl blur-3xl" />
 
-          <Card className="overflow-hidden border border-border/50 bg-card/80 backdrop-blur-sm shadow-xl">
+          {/* Mobile view - simplified dashboard */}
+          <div className="md:hidden mb-6">
+            <Card className="overflow-hidden border border-border/50 bg-card/80 backdrop-blur-sm shadow-xl p-4">
+              <div className="flex items-center gap-2 mb-4">
+                <BarChart3 className="h-6 w-6 text-finance-500" />
+                <span className="font-bold text-xl">Finara Dashboard</span>
+              </div>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <Card className="p-4 border-border/50">
+                  <h3 className="text-sm font-medium text-muted-foreground">Portfolio Value</h3>
+                  <p className="text-xl font-bold mt-1">$45,231</p>
+                  <div className="flex items-center gap-1 text-sm text-green-500">
+                    <TrendingUp className="h-3 w-3" />
+                    <span>+20.1%</span>
+                  </div>
+                </Card>
+                <Card className="p-4 border-border/50">
+                  <h3 className="text-sm font-medium text-muted-foreground">Today's Change</h3>
+                  <p className="text-xl font-bold mt-1">+$892</p>
+                  <div className="flex items-center gap-1 text-sm text-green-500">
+                    <TrendingUp className="h-3 w-3" />
+                    <span>+2.3%</span>
+                  </div>
+                </Card>
+              </div>
+              <div className="relative h-[120px] bg-gradient-to-br from-finance-500/5 to-purple-500/5 rounded-lg mb-2">
+                {/* Simplified chart representation */}
+              </div>
+              <p className="text-center text-sm text-muted-foreground">Portfolio Performance</p>
+            </Card>
+          </div>
+          
+          {/* Desktop view - full dashboard */}
+          <Card className="overflow-hidden border border-border/50 bg-card/80 backdrop-blur-sm shadow-xl hidden md:block">
             {/* Header */}
             <div className="border-b border-border/50 p-4">
               <div className="flex items-center justify-between">
@@ -76,7 +109,8 @@ export function DashboardPreview() {
               </div>
             </div>
 
-            <div className="flex">
+            {/* Keep original landscape layout but make it responsive */}
+            <div className="hidden md:flex">
               {/* AI Chat Sidebar */}
               <div className="w-[300px] border-r border-border/50 bg-muted/30 flex flex-col">
                 <div className="p-4 border-b border-border/50">
@@ -123,7 +157,7 @@ export function DashboardPreview() {
               {/* Main Content */}
               <div className="flex-1 p-6">
                 {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div className="grid grid-cols-4 gap-4 mb-6">
                   <Card className="p-4 border-border/50">
                     <h3 className="text-sm font-medium text-muted-foreground">Total Portfolio Value</h3>
                     <div className="mt-2">
@@ -170,7 +204,7 @@ export function DashboardPreview() {
                 </div>
 
                 {/* Charts Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <Card className="col-span-2 p-4 border-border/50">
                     <h3 className="text-lg font-semibold mb-2">Portfolio Performance</h3>
                     <p className="text-sm text-muted-foreground mb-4">6-month portfolio value trend</p>

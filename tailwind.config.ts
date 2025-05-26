@@ -98,6 +98,10 @@ const config = {
             "background-position": "100% 50%",
           },
         },
+        "slow-jump": {
+          "0%, 10%, 90%, 100%": { transform: "translateY(0)" },
+          "45%, 55%": { transform: "translateY(-5px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -105,6 +109,7 @@ const config = {
         float: "float 6s ease-in-out infinite",
         "pulse-slow": "pulse-slow 4s ease-in-out infinite",
         "gradient-x": "gradient-x 15s ease infinite",
+        "slow-jump": "slow-jump 5s ease-in-out infinite",
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",

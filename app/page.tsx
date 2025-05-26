@@ -27,7 +27,7 @@ export default function Home() {
       >
         <DashboardPreview />
       </Suspense>
-      <Pricing />
+      {/* <Pricing /> */}
       <Suspense
         fallback={
           <div className="h-[600px] flex items-center justify-center">
