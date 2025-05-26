@@ -20,6 +20,8 @@ export function useChat() {
   const [history, setHistory] = useState<ChatHistory[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isThinking, setIsThinking] = useState(false);
+  const [typingMessage, setTypingMessage] = useState<{text: string, isComplete: boolean, actions: any[] | undefined} | null>(null);
   const [error, setError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const [userName, setUserName] = useState<string>("You");
@@ -176,10 +178,42 @@ export function useChat() {
     setIsHistoryExpanded(false);
   }, [fetchAndSetChat]);
 
+  // Simulate typing animation for AI response
+  const simulateTyping = useCallback((fullText: string, actions: any[] | undefined) => {
+    setTypingMessage({ text: "", isComplete: false, actions });
+    let currentIndex = 0;
+    const typingSpeed = 15; // milliseconds per character
+    
+    const typeNextChar = () => {
+      if (currentIndex < fullText.length) {
+        setTypingMessage(prev => ({
+          text: fullText.substring(0, currentIndex + 1),
+          isComplete: false,
+          actions
+        }));
+        currentIndex++;
+        // Scroll to bottom with each character update
+        scrollToBottom();
+        setTimeout(typeNextChar, typingSpeed);
+      } else {
+        // Typing complete
+        setTypingMessage({
+          text: fullText,
+          isComplete: true,
+          actions
+        });
+        scrollToBottom();
+      }
+    };
+    
+    typeNextChar();
+  }, [scrollToBottom]);
+
   // Send a message
   const sendMessage = useCallback(async () => {
     if (!selectedChat || !newMessage.trim()) return;
     setLoading(true);
+    setIsThinking(true);
     setError(null);
     setMessages((prev) => [
       ...prev,
@@ -197,15 +231,37 @@ export function useChat() {
     const msgToSend = newMessage;
     setNewMessage("");
     try {
+      // Start "thinking" state
+      setTimeout(scrollToBottom, 0);
+      
       const aiResponse = await sendChatMessage(selectedChat, msgToSend, selectedModel);
+      
+      // Stop thinking and start typing animation
+      setIsThinking(false);
+      simulateTyping(aiResponse.message, aiResponse.actions);
+      
+      // When typing is done, this will be called by the useEffect below
+      // that watches for typingMessage.isComplete
+    } catch (e) {
+      setIsThinking(false);
+      setTypingMessage(null);
+      setError(e instanceof ChatServiceError ? e.message : "Failed to send message");
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedChat, newMessage, selectedModel, userName, currentTitle, scrollToBottom, simulateTyping]);
+  
+  // When typing is complete, update the messages state
+  useEffect(() => {
+    if (typingMessage?.isComplete && selectedChat) {
       setMessages((prev) => {
         const updated = [
           ...prev,
           {
             sender: "ai",
             name: "AI",
-            message: aiResponse.message,
-            actions: aiResponse.actions,
+            message: typingMessage.text,
+            actions: typingMessage.actions,
           },
         ];
         // Update cache for AI response
@@ -216,13 +272,10 @@ export function useChat() {
         });
         return updated;
       });
+      setTypingMessage(null);
       setTimeout(scrollToBottom, 0);
-    } catch (e) {
-      setError(e instanceof ChatServiceError ? e.message : "Failed to send message");
-    } finally {
-      setLoading(false);
     }
-  }, [selectedChat, newMessage, selectedModel, userName, currentTitle, scrollToBottom]);
+  }, [typingMessage, selectedChat, userName, currentTitle, scrollToBottom]);
 
   // Scroll to bottom on new message
   useEffect(() => {
@@ -241,10 +294,12 @@ export function useChat() {
     history,
     messages,
     loading,
+    isThinking,
+    typingMessage,
     error,
     messagesEndRef,
     handleNewChat,
     switchToChat,
     sendMessage,
   };
-} 
+}
