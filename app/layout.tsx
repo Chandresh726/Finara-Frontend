@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { AuthProvider } from "@/lib/contexts/auth-context"
 import StructuredData from "./structured-data"
+import { Analytics } from "@vercel/analytics/next"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -69,12 +70,14 @@ export default function RootLayout({
         <StructuredData />
       </head>
       <body className={inter.className} suppressHydrationWarning>
-        <AuthProvider>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-            {children}
-            <Toaster />
-          </ThemeProvider>
-        </AuthProvider>
+        <Analytics />
+          <AuthProvider>
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+              {children}
+              <Toaster />
+            </ThemeProvider>
+          </AuthProvider>
+        <Analytics />
       </body>
     </html>
   )
