@@ -11,6 +11,7 @@ import { PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { NewPortfolioDialog } from "./new-portfolio-dialog";
 import { DashboardSkeleton } from "@/components/skeleton/dashboard-skeleton";
+import { PortfolioHeaderSkeleton } from "@/components/skeleton/portfolio-header-skeleton";
 
 interface PortfolioProps extends Pick<PortfolioHeaderProps, 'isSidebarCollapsed' | 'onToggleSidebar'> {}
 
@@ -31,8 +32,8 @@ export function Portfolio({ isSidebarCollapsed, onToggleSidebar }: PortfolioProp
     localStorage.setItem("portfolioTab", view);
   }, [view]);
 
-  // Show skeleton while loading portfolios
-  if (isLoading) {
+  // Show full skeleton while loading portfolios
+  if (isLoading && !selectedPortfolio) {
     return <DashboardSkeleton />;
   }
   
@@ -82,12 +83,16 @@ export function Portfolio({ isSidebarCollapsed, onToggleSidebar }: PortfolioProp
 
   return (
     <div className="flex flex-col gap-6">
-      <PortfolioHeader
-        currentView={view}
-        onViewChange={setView}
-        isSidebarCollapsed={isSidebarCollapsed}
-        onToggleSidebar={onToggleSidebar}
-      />
+      {isLoading ? (
+        <PortfolioHeaderSkeleton />
+      ) : (
+        <PortfolioHeader
+          currentView={view}
+          onViewChange={setView}
+          isSidebarCollapsed={isSidebarCollapsed}
+          onToggleSidebar={onToggleSidebar}
+        />
+      )}
 
       {view === "overview" && <PortfolioOverview />}
       {view === "holdings" && <PortfolioHoldings />}

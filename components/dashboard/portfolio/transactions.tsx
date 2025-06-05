@@ -14,6 +14,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function Transactions() {
   const {
@@ -56,7 +57,40 @@ export default function Transactions() {
   }, [transactions, typeFilter, search]);
 
   if (loadingStates.transactions) {
-    return <TransactionsSkeleton />;
+    return (
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between w-full">
+            <div className="flex flex-col">
+              <Skeleton className="h-6 w-32 mb-2" />
+              <Skeleton className="h-4 w-40" />
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {/* Search and filters */}
+          <div className="flex items-center justify-between mb-4 gap-2">
+            <Skeleton className="h-8 w-56 rounded-md" />
+            <div className="flex gap-2">
+              <Skeleton className="h-8 w-24 rounded-md" />
+              <Skeleton className="h-8 w-24 rounded-md" />
+            </div>
+          </div>
+          {/* Table skeleton */}
+          <div className="w-full">
+            <div className="flex flex-col gap-2">
+              {[...Array(6)].map((_, i) => (
+                <Skeleton key={i} className="h-8 w-full rounded" />
+              ))}
+            </div>
+          </div>
+          {/* Pagination skeleton */}
+          <div className="flex justify-center mt-4">
+            <Skeleton className="h-8 w-48 rounded-md" />
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   const totalPages = Math.ceil(transactionsTotal / limit);
