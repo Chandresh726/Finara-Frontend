@@ -19,6 +19,7 @@ interface ChatInputProps {
   onMessageChange: (message: string) => void
   onModelChange: (model: ModelType) => void
   onSend: () => void
+  canSendMessage?: boolean
 }
 
 export function ChatInput({
@@ -26,7 +27,8 @@ export function ChatInput({
   modelType,
   onMessageChange,
   onModelChange,
-  onSend
+  onSend,
+  canSendMessage = true
 }: ChatInputProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -68,22 +70,30 @@ export function ChatInput({
       <div className="flex gap-2">
         <Textarea
           ref={textareaRef}
-          placeholder="Ask Anything ..."
+          placeholder={canSendMessage ? "Ask Anything ..." : "Please wait a moment before sending another message..."}
           value={message}
           onChange={e => onMessageChange(e.target.value)}
           onKeyDown={e => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault()
-              onSend()
+              if (canSendMessage) {
+                onSend()
+              }
             }
           }}
-          className="text-xs min-h-[40px] max-h-[120px] resize-none py-2 [&::-webkit-resizer]:hidden [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-0"
+          className={`text-xs min-h-[40px] max-h-[120px] resize-none py-2 [&::-webkit-resizer]:hidden [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar]:h-0 ${
+            !canSendMessage ? "opacity-50" : ""
+          }`}
           style={{ height: '40px' }}
+          disabled={!canSendMessage}
         />
         <Button
           size="icon"
-          className="h-10 w-10 bg-gradient-primary hover:bg-gradient-primary hover:opacity-90 text-white"
+          className={`h-10 w-10 bg-gradient-primary hover:bg-gradient-primary hover:opacity-90 text-white ${
+            !canSendMessage ? "opacity-50 cursor-not-allowed" : ""
+          }`}
           onClick={onSend}
+          disabled={!canSendMessage}
         >
           <SendHorizonal className="h-6 w-6" />
           <span className="sr-only">Send message</span>

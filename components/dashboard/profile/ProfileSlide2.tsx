@@ -4,6 +4,10 @@ import { Label } from "@/components/ui/label"
 import { RiskProfile, InvestmentType, Region } from "@/lib/constants/enums"
 
 export default function ProfileSlide2({ watch, setValue }: any) {
+  // Define enabled investment types and regions
+  const enabledInvestmentTypes = [InvestmentType.Equity, InvestmentType.Cryptocurrency]
+  const enabledRegions = [Region.US, Region.India, Region.Global]
+
   return (
     <motion.div
       key="slide2"
@@ -36,21 +40,27 @@ export default function ProfileSlide2({ watch, setValue }: any) {
           </div>
         </div>
       </div>
-      <div className="space-y-6">
-        <div className="space-y-4">
-          <Label>Preferred Investment Options</Label>
-          <div className="flex flex-wrap gap-2">
-            {Object.values(InvestmentType).map((type) => (
+      
+      <div className="space-y-4">
+        <Label>Preferred Investment Options</Label>
+        <div className="flex flex-wrap gap-2">
+          {Object.values(InvestmentType).map((type) => {
+            const isEnabled = enabledInvestmentTypes.includes(type)
+            return (
               <Button
                 key={type}
                 type="button"
                 variant="outline"
+                disabled={!isEnabled}
                 className={`h-10 px-4 text-xs rounded-full transition-all duration-300 ${
                   watch("preferredInvestmentTypes")?.includes(type)
                     ? "bg-blue-500 text-white hover:bg-blue-600 border-blue-500"
-                    : "hover:bg-muted"
+                    : isEnabled 
+                      ? "hover:bg-muted" 
+                      : "opacity-50 cursor-not-allowed"
                 }`}
                 onClick={() => {
+                  if (!isEnabled) return
                   const currentTypes = watch("preferredInvestmentTypes") || []
                   if (currentTypes.includes(type)) {
                     setValue(
@@ -64,23 +74,31 @@ export default function ProfileSlide2({ watch, setValue }: any) {
               >
                 {type}
               </Button>
-            ))}
-          </div>
+            )
+          })}
         </div>
-        <div className="space-y-4">
-          <Label>Preferred Investment Regions</Label>
-          <div className="flex flex-wrap gap-2">
-            {Object.values(Region).map((region) => (
+      </div>
+      
+      <div className="space-y-4">
+        <Label>Preferred Investment Regions</Label>
+        <div className="flex flex-wrap gap-2">
+          {Object.values(Region).map((region) => {
+            const isEnabled = enabledRegions.includes(region)
+            return (
               <Button
                 key={region}
                 type="button"
                 variant="outline"
+                disabled={!isEnabled}
                 className={`h-10 px-4 text-xs rounded-full transition-all duration-300 ${
                   watch("preferredRegions")?.includes(region)
                     ? "bg-blue-500 text-white hover:bg-blue-600 border-blue-500"
-                    : "hover:bg-muted"
+                    : isEnabled 
+                      ? "hover:bg-muted" 
+                      : "opacity-50 cursor-not-allowed"
                 }`}
                 onClick={() => {
+                  if (!isEnabled) return
                   const currentRegions = watch("preferredRegions") || []
                   if (currentRegions.includes(region)) {
                     setValue(
@@ -94,8 +112,8 @@ export default function ProfileSlide2({ watch, setValue }: any) {
               >
                 {region}
               </Button>
-            ))}
-          </div>
+            )
+          })}
         </div>
       </div>
     </motion.div>

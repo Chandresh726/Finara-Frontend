@@ -18,11 +18,30 @@ export function TradeButton({ type, symbol, name, price, change, region, investm
   const amount = quantity ? parseFloat(quantity) * price : 0
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
-  const { selectedPortfolio, refreshAll } = usePortfolio()
+  const { selectedPortfolio, refreshAll, assetsByCategory } = usePortfolio()
   const { toast } = useToast()
+
+  // Find the current asset's quantity from holdings
+  const currentAsset = Object.values(assetsByCategory || {})
+    .flat()
+    .find(asset => asset.assetSymbol === symbol && asset.investmentType === investmentType && asset.region === region)
 
   const handleTrade = async () => {
     if (!selectedPortfolio || !quantity || parseFloat(quantity) <= 0) return
+
+    // Validate sell quantity
+    if (type === "sell" && currentAsset) {
+      const sellQuantity = parseFloat(quantity)
+      if (sellQuantity > currentAsset.quantity) {
+        toast({
+          variant: "destructive",
+          title: "Invalid Quantity",
+          description: `You can only sell up to ${currentAsset.quantity} ${symbol}`,
+        })
+        return
+      }
+    }
+
     setLoading(true)
     try {
       const payload = {
@@ -90,31 +109,34 @@ export function TradeButton({ type, symbol, name, price, change, region, investm
           </div>
 
           {/* Quantity Input */}
-          <div className="space-y-4">
-            <div className="grid gap-2">
-              <label htmlFor="quantity" className="text-sm font-medium">
-                Quantity
-              </label>
-              <Input
-                id="quantity"
-                type="number"
-                className="h-9"
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                min="0"
-                step="0.000001"
-                placeholder="Enter quantity"
-                disabled={loading}
-              />
-            </div>
+          <div className="grid gap-2">
+            <label htmlFor="quantity" className="text-sm font-medium">
+              Quantity
+            </label>
+            <Input
+              id="quantity"
+              type="number"
+              className="h-9"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+              min="0"
+              step="0.000001"
+              placeholder="Enter quantity"
+              disabled={loading}
+            />
+            {type === "sell" && currentAsset && (
+              <p className="text-xs text-muted-foreground">
+                Available: {currentAsset.quantity} {symbol}
+              </p>
+            )}
+          </div>
 
-            {/* Total Amount */}
-            <div className="flex items-center justify-between pt-2 border-t">
-              <span className="text-sm font-medium">Total Amount</span>
-              <span className="text-lg font-bold">
-                ${amount.toLocaleString()}
-              </span>
-            </div>
+          {/* Total Amount */}
+          <div className="flex items-center justify-between pt-2 border-t">
+            <span className="text-sm font-medium">Total Amount</span>
+            <span className="text-lg font-bold">
+              ${amount.toLocaleString()}
+            </span>
           </div>
 
           {/* Action Buttons */}
@@ -133,7 +155,12 @@ export function TradeButton({ type, symbol, name, price, change, region, investm
             <Button
               size="sm"
               className={`px-6 ${type === "buy" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}`}
-              disabled={!quantity || parseFloat(quantity) <= 0 || loading}
+              disabled={
+                !quantity || 
+                parseFloat(quantity) <= 0 || 
+                loading || 
+                (type === "sell" && currentAsset && parseFloat(quantity) > currentAsset.quantity)
+              }
               onClick={handleTrade}
             >
               {loading ? "Processing..." : `Confirm ${type === "buy" ? "Buy" : "Sell"}`}

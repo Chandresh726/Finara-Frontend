@@ -41,6 +41,7 @@ export function Sidebar({ className, onClose }: SidebarProps) {
     handleNewChat,
     switchToChat,
     sendMessage,
+    canSendMessage,
   } = useChat();
 
   const [newChatDialogOpen, setNewChatDialogOpen] = useState(false);
@@ -152,6 +153,7 @@ export function Sidebar({ className, onClose }: SidebarProps) {
             onMessageChange={setNewMessage}
             onModelChange={setSelectedModel}
             onSend={sendMessage}
+            canSendMessage={canSendMessage}
           />
           {/* Only show the full-page loader for operations other than message sending */}
           {loading && !isThinking && !typingMessage && (

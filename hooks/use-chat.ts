@@ -27,6 +27,10 @@ export function useChat() {
   const [userName, setUserName] = useState<string>("You");
   // In-memory cache for chat messages
   const messagesCache = useRef<Map<string, { messages: ChatMessage[]; userName: string; title: string }>>(new Map());
+  // Add debounce timer ref
+  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [canSendMessage, setCanSendMessage] = useState(true);
+  const DEBOUNCE_DELAY = 1000; // 1 second delay between messages
 
   // Helper: scroll to bottom
   const scrollToBottom = useCallback(() => {
@@ -211,7 +215,17 @@ export function useChat() {
 
   // Send a message
   const sendMessage = useCallback(async () => {
-    if (!selectedChat || !newMessage.trim()) return;
+    if (!selectedChat || !newMessage.trim() || !canSendMessage) return;
+    
+    // Set debounce timer
+    setCanSendMessage(false);
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    debounceTimerRef.current = setTimeout(() => {
+      setCanSendMessage(true);
+    }, DEBOUNCE_DELAY);
+
     setLoading(true);
     setIsThinking(true);
     setError(null);
@@ -249,7 +263,7 @@ export function useChat() {
     } finally {
       setLoading(false);
     }
-  }, [selectedChat, newMessage, selectedModel, userName, currentTitle, scrollToBottom, simulateTyping]);
+  }, [selectedChat, newMessage, selectedModel, userName, currentTitle, scrollToBottom, simulateTyping, canSendMessage]);
   
   // When typing is complete, update the messages state
   useEffect(() => {
@@ -282,6 +296,15 @@ export function useChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
+
   return {
     isHistoryExpanded,
     setIsHistoryExpanded,
@@ -301,5 +324,6 @@ export function useChat() {
     handleNewChat,
     switchToChat,
     sendMessage,
+    canSendMessage,
   };
 }
