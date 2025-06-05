@@ -1,5 +1,6 @@
 import type React from "react"
 import { PortfolioProvider } from "@/lib/contexts/portfolio-context"
+import { SidebarProvider } from "@/lib/contexts/sidebar-context"
 
 // This enables Partial Prerendering for the dashboard section
 export const dynamic = "force-dynamic"
@@ -11,5 +12,11 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  return <PortfolioProvider><div className="min-h-screen bg-background">{children}</div></PortfolioProvider>
+  return (
+    <PortfolioProvider>
+      <SidebarProvider>
+        <div className="min-h-screen bg-background">{children}</div>
+      </SidebarProvider>
+    </PortfolioProvider>
+  )
 }

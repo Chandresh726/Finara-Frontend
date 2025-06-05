@@ -8,6 +8,7 @@ import { Sidebar } from "@/components/dashboard/sidebar"
 import { Portfolio } from "@/components/dashboard/portfolio"
 import { DashboardSkeleton } from "@/components/skeleton/dashboard-skeleton"
 import { useAuth } from "@/lib/contexts/auth-context"
+import { useSidebar } from "@/lib/contexts/sidebar-context"
 import { Loader2 } from "lucide-react"
 
 // Enable Partial Prerendering for this page
@@ -17,6 +18,7 @@ export const runtime = "nodejs"
 export default function DashboardPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth()
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true)
+  const { sidebarWidth } = useSidebar()
 
   // Persist sidebar state in localStorage
   useEffect(() => {
@@ -62,7 +64,7 @@ export default function DashboardPage() {
       <div className="hidden md:flex flex-1">
         <div 
           className={cn(
-            "hidden md:block fixed top-16 left-0 h-[calc(100vh-4rem)] z-40 transition-all duration-300",
+            "fixed top-16 left-0 h-[calc(100vh-4rem)] z-40 transition-all duration-300",
             isSidebarCollapsed
               ? "-translate-x-full opacity-0 pointer-events-none"
               : "translate-x-0 opacity-100"
@@ -74,10 +76,13 @@ export default function DashboardPage() {
             onClose={() => setIsSidebarCollapsed(true)}
           />
         </div>
-        <main className={cn(
-          "flex-1 overflow-y-auto transition-all duration-300",
-          isSidebarCollapsed ? "md:ml-0" : "md:ml-80"
-        )}>
+        <main 
+          className={cn(
+            "flex-1 overflow-y-auto transition-all duration-300",
+            isSidebarCollapsed ? "ml-0" : "ml-[var(--sidebar-width)]"
+          )}
+          style={{ "--sidebar-width": `${sidebarWidth}px` } as React.CSSProperties}
+        >
           <div className="mx-auto max-w-6xl p-6">
             <Suspense fallback={<DashboardSkeleton />}>
               <Portfolio 
