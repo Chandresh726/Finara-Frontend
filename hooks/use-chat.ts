@@ -16,7 +16,7 @@ export function useChat() {
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [currentTitle, setCurrentTitle] = useState("New Chat");
   const [newMessage, setNewMessage] = useState("");
-  const [selectedModel, setSelectedModel] = useState<ModelType>(ModelType.GEMINI_2_FLASH);
+  const [selectedModel, setSelectedModel] = useState<ModelType>(ModelType.GEMINI_2_5_FLASH);
   const [history, setHistory] = useState<ChatHistory[]>([]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
